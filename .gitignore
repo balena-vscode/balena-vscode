@@ -2,3 +2,4 @@ node_modules/
 .direnv/
 out/
 *.img
+*.secret

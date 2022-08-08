@@ -16,18 +16,23 @@
 	"keywords": [],
 	"license": "ISC",
 	"activationEvents": [
-		"onCommand:extension.helloWorld"
+		"onCommand:balena-vscode.loginToBalenaCloud"
 	],
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
+				"command": "balena-vscode.loginToBalenaCloud",
+				"title": "Balena: Login to Balena Cloud"
 			}
 		]
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.69.0",
 		"typescript": "^4.7.4"
+	},
+	"dependencies": {
+		"balena-sdk": "^16.25.1",
+		"balena-settings-client": "^5.0.1",
+		"balena-settings-storage": "^7.0.0"
 	}
 }
