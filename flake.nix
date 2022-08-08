@@ -16,6 +16,7 @@
         devShell = with pkgs; mkShell {
           buildInputs = [
             nodePackages.pnpm
+            qemu
           ];
         };
       }
