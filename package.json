@@ -1,0 +1,33 @@
+{
+	"name": "balena-vscode",
+	"author": "",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./out/extension.js",
+	"engines": {
+		"vscode": "^1.34.0"
+	},
+	"scripts": {
+		"vscode:prepublish": "pnpm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint . --ext .ts,.tsx",
+		"watch": "echo $PATH && tsc -watch -p ./"
+	},
+	"keywords": [],
+	"license": "ISC",
+	"activationEvents": [
+		"onCommand:extension.helloWorld"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.helloWorld",
+				"title": "Hello World"
+			}
+		]
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.34.0",
+		"typescript": "^4.7.4"
+	}
+}
