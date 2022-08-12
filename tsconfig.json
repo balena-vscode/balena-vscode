@@ -1,12 +1,28 @@
 {
-  "compilerOptions": {
+	"compilerOptions": {
 		"module": "commonjs",
+		"isolatedModules": true, // https://esbuild.github.io/content-types/#isolated-modules
+		"esModuleInterop": true, // https://esbuild.github.io/content-types/#es-module-interop
 		"target": "es2020",
-		"lib": ["es2020", "DOM"],
+		"lib": [
+			"es2020",
+			"DOM"
+		],
 		"outDir": "out",
 		"sourceMap": true,
 		"strict": true,
-		"rootDir": "src"
+		"rootDir": "./",
+		"noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
+		"noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+		"noUnusedParameters": true /* Report errors on unused parameters. */
 	},
-	"exclude": ["node_modules", ".vscode-test"]
+	"include": [
+		"src/**/*.ts",
+		"test/**/*.ts"
+	],
+	"exclude": [
+		"node_modules",
+		".vscode-test",
+		"test/simulate-balena-devices/**/*"
+	]
 }

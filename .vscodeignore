@@ -1,0 +1,21 @@
+# VS Code
+.vscode
+
+# Node
+node_modules
+out/
+src/
+test/
+**/tsconfig.json
+**/.eslint.json
+**/*.map
+**/*.ts
+
+# Nix
+direnv/
+.envrc
+flake.lock
+*.nix
+
+# Misc
+.gitignore

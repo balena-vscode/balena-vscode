@@ -13,6 +13,19 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "npm",
+			"script": "compile-tests",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "silent"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
