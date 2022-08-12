@@ -9,4 +9,6 @@ This is an unofficial VS Code extension for use with Balena SDK and CLI. It aims
 - Opening and following device logs in a new tab
 - Managing and pushing releases 
 
-It is an extremely early work-in-progress. Highly advised not to use unless doing extension development. 
+It is an extremely early work-in-progress. Highly advised to not use unless doing extension development. 
+
+![Initial TreeView](assets/Screenshot_20220812_050447.png)
