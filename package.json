@@ -13,9 +13,44 @@
 		"compile-tests": "pnpm tsc-compile"
 	},
 	"activationEvents": [
+		"onView:devices",
+		"onView:releases",
+		"onView:variables",
 		"onCommand:balena-vscode.loginToBalenaCloud"
 	],
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "fleet-explorer",
+					"title": "Balena Fleet Explorer",
+					"icon": "media/balena.svg"
+				}
+			]
+		},
+		"views": {
+			"fleet-explorer": [
+				{
+					"id": "devices",
+					"name": "Devices"
+				},
+				{
+					"id": "releases",
+					"name": "Releases"
+				},
+				{
+					"id": "variables",
+					"name": "Variables"
+				}
+			],
+			"explorer": [
+				{
+					"id": "jsonOutline",
+					"name": "Json Outline",
+					"when": "jsonOutlineEnabled"
+				}
+			]
+		},
 		"commands": [
 			{
 				"command": "balena-vscode.loginToBalenaCloud",
