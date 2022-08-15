@@ -1,13 +1,13 @@
 import path from 'path';
 import * as vscode from 'vscode';
 
-import { getAuthenticatedSdkFromCache } from '../../lib/balena';
+import { BalenaSDK, getDevices } from '../../lib/balena';
 
-export class DeviceProvider implements vscode.TreeDataProvider<Device> {
+export class DevicesProvider implements vscode.TreeDataProvider<Device> {
     private _onDidChangeTreeData: vscode.EventEmitter<Device | undefined | void> = new vscode.EventEmitter<Device | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<Device | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor() { }
+    constructor(private balenaSdk: BalenaSDK) { }
 
     refresh(): void {
         this._onDidChangeTreeData.fire();
@@ -17,21 +17,14 @@ export class DeviceProvider implements vscode.TreeDataProvider<Device> {
         return element;
     }
 
-    getChildren(element?: Device): Thenable<Device[]> {
-        if (element) {
-            vscode.window.showInformationMessage('Passed element');
-            return Promise.resolve(this.getAllDevices())
-        } else {
-            vscode.window.showInformationMessage('No element');
-            return Promise.resolve(this.getAllDevices())
-        }
+    getChildren(_element?: Device): Thenable<Device[]> {
+        return Promise.resolve(this.getAllDevices())
     }
 
 
     private async getAllDevices(): Promise<Device[]> {
-        const balena = await getAuthenticatedSdkFromCache();
-        const rawDevices = await balena.models.device.getAll()
-        const devices = rawDevices.map(d => new Device(`${d.device_name} (${d.status})`, vscode.TreeItemCollapsibleState.None));
+        const rawDevices = await getDevices(this.balenaSdk);
+        const devices = rawDevices.map((d: any) => new Device(`${d.device_name} (${d.status})`, vscode.TreeItemCollapsibleState.None));
         return devices
     }
 }
@@ -45,10 +38,9 @@ export class Device extends vscode.TreeItem {
         super(label, collapsibleState)
     }
 
-
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'light', 'device.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'dark', 'device.svg'),
+        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'device.svg'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'device.svg'),
     };
 
     contextValue = 'device'

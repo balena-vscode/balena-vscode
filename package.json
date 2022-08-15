@@ -24,7 +24,7 @@
 				{
 					"id": "fleet-explorer",
 					"title": "Balena Fleet Explorer",
-					"icon": "media/balena.svg"
+					"icon": "assets/balena.svg"
 				}
 			]
 		},
@@ -42,19 +42,16 @@
 					"id": "variables",
 					"name": "Variables"
 				}
-			],
-			"explorer": [
-				{
-					"id": "jsonOutline",
-					"name": "Json Outline",
-					"when": "jsonOutlineEnabled"
-				}
 			]
 		},
 		"commands": [
 			{
 				"command": "balena-vscode.loginToBalenaCloud",
 				"title": "Balena: Login to Balena Cloud"
+			},
+			{
+				"command": "balena-vscode.selectActiveFleet",
+				"title": "Balena: Select Active Fleet"
 			}
 		]
 	},

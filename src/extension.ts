@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import { commands, ExtensionContext } from 'vscode';
-import { loginToBalenaCloud } from './commands'
-import { DeviceProvider } from './views/providers/devices';
+import { getCommandUri, loginToBalenaCloud, selectActiveFleet } from './commands'
+import * as fleetExplorerView from './views/FleetExplorer';
 
 export function activate(context: ExtensionContext) {
-	vscode.window.registerTreeDataProvider('devices', new DeviceProvider())
-	context.subscriptions.push(commands.registerCommand('balena-vscode.loginToBalenaCloud', loginToBalenaCloud));
+	fleetExplorerView.registerView(context);
+	context.subscriptions.push(commands.registerCommand(getCommandUri(loginToBalenaCloud), loginToBalenaCloud));
+	context.subscriptions.push(commands.registerCommand(getCommandUri(selectActiveFleet), selectActiveFleet));
 }

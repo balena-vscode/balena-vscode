@@ -1,15 +1,9 @@
-import * as notifications from './views/notifications';
-import { getAuthenticatedSdkFromCache, getSdkOpts } from "./lib/balena";
+import { getFleets, useBalenaClient } from './lib/balena';
+import * as authentication from './views/Authentication';
+import { showSelectFleet } from './views/FleetExplorer';
+import * as notifications from './views/Notifications'
 
-export const loginToBalenaCloud = async () => {
-    const balena = await getAuthenticatedSdkFromCache();
+export const loginToBalenaCloud = async () => await authentication.showLoginOptions();
+export const selectActiveFleet = async () => await showSelectFleet();
 
-    console.log(getSdkOpts())
-
-    balena.models.device.getAll().then((devices: any) => {
-        console.log(devices);
-        const online = devices.filter((d: any) => d.is_online);
-        const offline = devices.filter((d: any) => !d.is_online);
-        notifications.infoMsg(`Success! ${devices.length} devices found: ${online.length} online / ${offline.length} offline`)
-    })
-}
+export const getCommandUri = (fn: Function) => 'balena-vscode.'.concat(fn.name);
