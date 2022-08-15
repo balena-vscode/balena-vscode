@@ -3,3 +3,4 @@ node_modules/
 out/
 *.img
 *.secret
+test/balena-nodejs-hello-world

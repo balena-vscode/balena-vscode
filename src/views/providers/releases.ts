@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { BalenaSDK, getFleetReleases } from '../../lib/balena';
-import * as notifcations from '../Notifications'
 
 export class ReleasesProvider implements vscode.TreeDataProvider<Release> {
     private _onDidChangeTreeData: vscode.EventEmitter<Release | undefined | void> = new vscode.EventEmitter<Release | undefined | void>();
@@ -23,7 +22,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release> {
 
     private async getAllReleases(): Promise<Release[]> {
         const raw = await getFleetReleases(this.balenaSdk, this.fleetId);
-        const releases = raw.map((d: any) => new Release(`(${d})`, vscode.TreeItemCollapsibleState.None));
+        const releases = raw.map((r: any) => new Release(`${r.semver}+rev${r.revision} | ${r.commit.substring(0, 6)} | ${r.status}`, vscode.TreeItemCollapsibleState.None));
         return releases
     }
 }
