@@ -27,3 +27,5 @@ export const loginWithEmailPass = async (balenaSdk: BalenaSDK, email: string, pa
     });
     return await balenaSdk.auth.isLoggedIn();
 }
+
+export const isLoggedIn = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.isLoggedIn() 

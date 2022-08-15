@@ -16,7 +16,8 @@
 		"onView:devices",
 		"onView:releases",
 		"onView:variables",
-		"onCommand:balena-vscode.loginToBalenaCloud"
+		"onCommand:balena-vscode.loginToBalenaCloud",
+		"onCommand:balena-vscode.selectActiveFleet"
 	],
 	"contributes": {
 		"viewsContainers": {
@@ -76,7 +77,8 @@
 	"dependencies": {
 		"balena-sdk": "^16.25.1",
 		"balena-settings-client": "^5.0.1",
-		"balena-settings-storage": "^7.0.0"
+		"balena-settings-storage": "^7.0.0",
+		"rxjs": "^7.5.6"
 	},
 	"engines": {
 		"vscode": "^1.69.0"

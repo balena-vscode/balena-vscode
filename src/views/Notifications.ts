@@ -17,6 +17,5 @@ export const errorMsg = async (msg: string) => {
 export const debugMsg = async (obj: any) => {
     console.log(obj);
     const logger = useLogger();
-    logger.show();
     logger.appendLine(JSON.stringify(obj));
 }

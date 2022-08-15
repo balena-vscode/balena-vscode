@@ -1,4 +1,5 @@
-import * as vscode from 'vscode';
+import * as settings from '../../settings'
+
 import { getSdk, SdkOptions } from 'balena-sdk';
 
 export { type BalenaSDK } from 'balena-sdk';
@@ -14,16 +15,21 @@ export { type BalenaSDK } from 'balena-sdk';
  */
 export const useBalenaClient = () => getSdk(getSdkOpts());
 
+/**
+ * Loads user and workspaces settings from the environment and returns an SdkOptions object
+ * to be used for creating a BalenaSDK client
+ * 
+ * @returns SdkOptions
+ */
 export const getSdkOpts = () => {
-    const config = 'sdkOptions';
     let options: SdkOptions = {};
 
-    const dataDirectory = vscode.workspace.getConfiguration(config).get<string>('dataDirectory');
+    const dataDirectory = settings.getBalenaSdkDataDirectory()
     if (dataDirectory) {
         options.dataDirectory = dataDirectory;
     }
 
-    const apiUrl = vscode.workspace.getConfiguration(config).get<string>('apiUrl');
+    const apiUrl = settings.getBalenaSdkApiUrl()
     if (apiUrl) {
         options.apiUrl = apiUrl;
     }

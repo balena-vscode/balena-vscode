@@ -7,7 +7,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device> {
     private _onDidChangeTreeData: vscode.EventEmitter<Device | undefined | void> = new vscode.EventEmitter<Device | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<Device | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor(private balenaSdk: BalenaSDK) { }
+    constructor(private balenaSdk: BalenaSDK, private fleetId: string) { }
 
     refresh(): void {
         this._onDidChangeTreeData.fire();
@@ -23,7 +23,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device> {
 
 
     private async getAllDevices(): Promise<Device[]> {
-        const rawDevices = await getDevices(this.balenaSdk);
+        const rawDevices = await getDevices(this.balenaSdk, this.fleetId);
         const devices = rawDevices.map((d: any) => new Device(`${d.device_name} (${d.status})`, vscode.TreeItemCollapsibleState.None));
         return devices
     }
