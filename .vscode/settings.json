@@ -1,3 +1,6 @@
 {
     "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }

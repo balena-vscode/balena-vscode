@@ -9,6 +9,7 @@
 	"scripts": {
 		"tsc-compile": "tsc -p ./",
 		"lint": "eslint ./ --ext .ts,.tsx",
+		"lint-fix": "pnpm lint --fix",
 		"watch": "echo $PATH && pnpm tsc-compile --watch",
 		"compile-tests": "pnpm tsc-compile"
 	},
