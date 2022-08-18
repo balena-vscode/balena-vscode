@@ -10,8 +10,9 @@ export const registerView = async (context: vscode.ExtensionContext) => {
   fleetStatusItem = createFleetStatusItem()
   context.subscriptions.push(fleetStatusItem)
 
+  const initialFleet = settings.getDefaultFleet() ?? (await getFleets(useBalenaClient()))[0].slug
+  SelectedFleet$.next(initialFleet)
   SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet ?? 'None'))
-  SelectedFleet$.next(settings.getDefaultFleet())
 }
 
 export const showSelectFleet = async () => {
