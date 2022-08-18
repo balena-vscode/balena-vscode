@@ -1,5 +1,7 @@
 import * as vscode from 'vscode'
 
+
+
 const balenaSdkOptionsConfigUri = 'sdkOptions'
 const dataDirectoryConfigUri = 'dataDirectory'
 export const getBalenaSdkDataDirectory = () =>

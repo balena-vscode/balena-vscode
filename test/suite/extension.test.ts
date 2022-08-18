@@ -1,18 +1,21 @@
 import * as assert from 'assert'
-import { after } from 'mocha'
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode'
-// import * as myExtension from '../extension';
+import { describe } from 'mocha'
+import { SelectedFleet$ } from '../../src/views/StatusBar'
 
-suite('Extension Test Suite', () => {
-  after(() => {
-    vscode.window.showInformationMessage('All tests done!')
+suite('Balena VSCode Test Suite', () => {
+  
+  let extContext
+
+  suiteSetup( async () => {
+    const ext = vscode.extensions.getExtension("kalebpace.balena-vscode")
+    extContext = await ext?.activate() 
+    extContext
   })
 
-  test('Sample test', () => {
-    assert.strictEqual(-1, [1, 2, 3].indexOf(5))
-    assert.strictEqual(-1, [1, 2, 3].indexOf(0))
+  describe("On Activation...", () => {
+    test('load \'undefined\' Fleet', async () => {
+      SelectedFleet$.subscribe((value: string | undefined) => assert.equal(value, undefined) )
+    })
   })
 })

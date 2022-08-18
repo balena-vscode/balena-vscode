@@ -1,6 +1,7 @@
 {
 	"name": "balena-vscode",
 	"author": "Kaleb Pace (development.6v1i9@slmail.me)",
+	"publisher": "kalebpace",
 	"version": "1.0.0",
 	"description": "Unofficial Balena Extension for VS Code",
 	"license": "MIT",
