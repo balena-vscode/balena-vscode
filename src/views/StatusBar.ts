@@ -31,7 +31,7 @@ export const showSelectFleet = async () => {
 }
 
 let fleetStatusItem: vscode.StatusBarItem
-const updateFleetStatusItemText = (fleet: string) => fleetStatusItem.text = `Active Fleet: ${fleet}`
+const updateFleetStatusItemText = (fleet: string) => fleetStatusItem.text = `$(symbol-method) Active Fleet: ${fleet}`
 const createFleetStatusItem = () => {
   const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
   item.command = getCommandUri(selectActiveFleet)

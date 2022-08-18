@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+    <g fill="#FFFFFF">
+        <text font-size="22px">
+            <tspan x="0" y="20">V</tspan>
+        </text>
+        <text font-size="14px">
+            <tspan x="12" y="20">x</tspan>
+        </text>
+    </g>
+</svg>

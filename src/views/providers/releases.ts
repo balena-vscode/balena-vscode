@@ -1,17 +1,6 @@
+import path from 'path'
 import * as vscode from 'vscode'
 import { BalenaSDK, Release as FleetRelease, getFleetReleases } from '../../lib/balena'
-
-export class Release extends vscode.TreeItem {
-  constructor (
-        public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
-  ) {
-    super(label, collapsibleState)
-  }
-
-  contextValue = 'release'
-}
 
 export class ReleasesProvider implements vscode.TreeDataProvider<Release> {
   private _onDidChangeTreeData: vscode.EventEmitter<Release | undefined | void> = new vscode.EventEmitter<Release | undefined | void>()
@@ -36,4 +25,21 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release> {
     const releases = raw.map((r: FleetRelease) => new Release(`${r.semver}+rev${r.revision} | ${r.commit.substring(0, 6)} | ${r.status}`, vscode.TreeItemCollapsibleState.None))
     return releases
   }
+}
+
+export class Release extends vscode.TreeItem {
+  constructor (
+        public readonly label: string,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public readonly command?: vscode.Command
+  ) {
+    super(label, collapsibleState)
+  }
+
+  iconPath = {
+    light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'releases.svg'),
+    dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'releases.svg')
+  }
+
+  contextValue = 'release'
 }

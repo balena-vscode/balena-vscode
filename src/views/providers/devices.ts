@@ -17,30 +17,57 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device> {
     return element
   }
 
-  getChildren (): Thenable<Device[]> {
-    return Promise.resolve(this.getAllDevices())
+  getChildren (element?: Device): Thenable<Device[]> {
+    if(!element) {
+      return Promise.resolve(this.getAllDevices())
+    } else {
+      return Promise.resolve([])
+    }
   }
 
   private async getAllDevices (): Promise<Device[]> {
-    const rawDevices = await getDevices(this.balenaSdk, this.fleetId)
-    const devices = rawDevices.map((d: FleetDevice) => new Device(`${d.device_name} (${d.status})`, vscode.TreeItemCollapsibleState.None))
-    return devices
+    const devices = await getDevices(this.balenaSdk, this.fleetId)
+    console.log(devices)
+    return devices.map((d: FleetDevice) => 
+      new Device(`${d.device_name}`, d.is_online, d.api_heartbeat_state, vscode.TreeItemCollapsibleState.Collapsed)
+      )
   }
 }
 
 export class Device extends vscode.TreeItem {
   constructor (
         public readonly label: string,
+        public readonly isOnline: boolean,
+        public readonly reportedStatus: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState)
+    this.setOnlineStatusIcon()
   }
 
-  iconPath = {
-    light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'device.svg'),
-    dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'device.svg')
+  private setOnlineStatusIcon() {
+    if(this.isOnline) {
+    this.tooltip = this.reportedStatus;
+      this.iconPath = {
+        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceOnline.svg'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceOnline.svg')
+      }
+    } else if (!this.isOnline && this.reportedStatus == "online") {
+      this.tooltip = "online (heartbeat only)";
+      this.iconPath = {
+        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceHeartbeatOnly.svg'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceHeartbeatOnly.svg')
+      }
+    } else {
+      this.tooltip = this.reportedStatus;
+      this.iconPath = {
+        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceOffline.svg'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceOffline.svg')
+      }
+    }
   }
+
 
   contextValue = 'device'
 }
