@@ -3,5 +3,6 @@
         "source.fixAll.eslint": true
     },
     "nixEnvSelector.suggestion": false,
-    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix"
+    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+    "svg.preview.background": "editor"
 }

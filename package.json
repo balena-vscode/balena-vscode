@@ -27,7 +27,7 @@
 				{
 					"id": "fleet-explorer",
 					"title": "Balena Fleet Explorer",
-					"icon": "assets/balena.svg"
+					"icon": "$(symbol-method)"
 				}
 			]
 		},

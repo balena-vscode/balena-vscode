@@ -1,6 +1,7 @@
-import path from 'path'
 import * as vscode from 'vscode'
-import { BalenaSDK, ApplicationVariable, getFleetVariables } from '../../lib/balena'
+import { VariableSet } from '../icons'
+
+import { BalenaSDK, ApplicationVariable, getFleetVariables } from '../lib/balena'
 
 export class VariablesProvider implements vscode.TreeDataProvider<Variable> {
   private _onDidChangeTreeData: vscode.EventEmitter<Variable | undefined | void> = new vscode.EventEmitter<Variable | undefined | void>()
@@ -31,15 +32,9 @@ export class Variable extends vscode.TreeItem {
   constructor (
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState)
   }
-
-  iconPath = {
-    light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'variables.svg'),
-    dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'variables.svg')
-  }
-
+  iconPath = VariableSet
   contextValue = 'release'
 }

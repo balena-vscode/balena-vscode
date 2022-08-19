@@ -1,7 +1,7 @@
-import path from 'path'
 import * as vscode from 'vscode'
+import { DeviceOnline, DeviceHeartbeatOnly, DeviceOffline } from '../icons'
 
-import { BalenaSDK, Device as FleetDevice, getDevices } from '../../lib/balena'
+import { BalenaSDK, Device as FleetDevice, getDevices } from '../lib/balena'
 
 export class DevicesProvider implements vscode.TreeDataProvider<Device> {
   private _onDidChangeTreeData: vscode.EventEmitter<Device | undefined | void> = new vscode.EventEmitter<Device | undefined | void>()
@@ -27,7 +27,6 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device> {
 
   private async getAllDevices (): Promise<Device[]> {
     const devices = await getDevices(this.balenaSdk, this.fleetId)
-    console.log(devices)
     return devices.map((d: FleetDevice) => 
       new Device(`${d.device_name}`, d.is_online, d.api_heartbeat_state, vscode.TreeItemCollapsibleState.Collapsed)
       )
@@ -48,26 +47,16 @@ export class Device extends vscode.TreeItem {
 
   private setOnlineStatusIcon() {
     if(this.isOnline) {
-    this.tooltip = this.reportedStatus;
-      this.iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceOnline.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceOnline.svg')
-      }
+      this.tooltip = this.reportedStatus[0].toUpperCase().concat(this.reportedStatus.slice(1));
+      this.iconPath = DeviceOnline 
     } else if (!this.isOnline && this.reportedStatus == "online") {
-      this.tooltip = "online (heartbeat only)";
-      this.iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceHeartbeatOnly.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceHeartbeatOnly.svg')
-      }
+      this.tooltip = "Online (Heartbeat Only)";
+      this.iconPath = DeviceHeartbeatOnly
     } else {
-      this.tooltip = this.reportedStatus;
-      this.iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'light', 'deviceOffline.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', '..', 'assets', 'dark', 'deviceOffline.svg')
-      }
+      this.tooltip = this.reportedStatus[0].toUpperCase().concat(this.reportedStatus.slice(1));
+      this.iconPath = DeviceOffline 
     }
   }
-
 
   contextValue = 'device'
 }
