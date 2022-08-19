@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
 import {
-  ReleaseCanceled,
-  ReleaseFailed,
-  ReleaseUnknown,
-  ReleaseValid,
-  ReleaseFinalized
+  ReleaseCanceledIcon,
+  ReleaseFailedIcon,
+  ReleaseUnknownIcon,
+  ReleaseValidIcon,
+  ReleaseFinalizedIcon
 } from '../icons'
 
 import { BalenaSDK, Release as FleetRelease, getFleetReleases } from '../lib/balena'
@@ -52,19 +52,19 @@ export class Release extends vscode.TreeItem {
     const buildStatus = this.release.status;
     if(buildStatus === "success" && this.release.is_final) {
       this.tooltip = `Finalized at ${this.release.is_finalized_at__date}`
-      this.iconPath = ReleaseFinalized 
+      this.iconPath = ReleaseFinalizedIcon 
     } else if (buildStatus === "success") {
       this.tooltip = "Success"
-      this.iconPath = ReleaseValid 
+      this.iconPath = ReleaseValidIcon 
     } else if (buildStatus === "cancelled") {
       this.tooltip = "Canceled"
-      this.iconPath = ReleaseCanceled 
+      this.iconPath = ReleaseCanceledIcon 
     } else if (buildStatus === "failed") {
       this.tooltip = "Failed"
-      this.iconPath = ReleaseFailed 
+      this.iconPath = ReleaseFailedIcon 
     } else {
       this.tooltip = "Unknown"
-      this.iconPath = ReleaseUnknown 
+      this.iconPath = ReleaseUnknownIcon 
     }
   }
 

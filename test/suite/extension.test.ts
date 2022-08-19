@@ -13,7 +13,7 @@ suite('Balena VSCode Test Suite', () => {
     extContext
   })
 
-  describe("On Activation...", () => {
+  describe("On Unauthenticated Activation...", () => {
     test('load \'undefined\' Fleet', async () => {
       SelectedFleet$.subscribe((value: string | undefined) => assert.equal(value, undefined) )
     })
