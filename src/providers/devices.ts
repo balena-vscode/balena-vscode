@@ -13,7 +13,8 @@ import {
   InProgressIcon,
   NetworkAddressIcon,
   PowerIcon,
-  TextIcon
+  TextIcon,
+  NoteIcon
 } from '../icons'
 
 import { BalenaSDK, Device as FleetDevice, getDevices } from '../lib/balena'
@@ -100,12 +101,15 @@ export class DeviceMeta extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
   ) {
     super(label, collapsibleState)
-    this.setMetaIcons();
+    this.setMetaIcon();
   }
 
-  private setMetaIcons() {
+  private setMetaIcon() {
     if (/created_at|last_.*_event|modified_at/.test(this.label)) {
       this.iconPath = DateTimeIcon
+    }
+    else if (/is_/.test(this.label)) {
+      this.iconPath = BoolenIcon
     }
     else if (/location|longitude|latitude/.test(this.label)) {
       this.iconPath = LocationIcon
@@ -115,9 +119,6 @@ export class DeviceMeta extends vscode.TreeItem {
     }
     else if (/storage_/.test(this.label)) {
       this.iconPath = StorageIcon
-    }
-    else if (/is_/.test(this.label)) {
-      this.iconPath = BoolenIcon
     }
     else if (/cpu_/.test(this.label)) {
       this.iconPath = CpuIcon
@@ -133,6 +134,9 @@ export class DeviceMeta extends vscode.TreeItem {
     }
     else if (/volt/.test(this.label)) {
       this.iconPath = PowerIcon
+    }
+    else if (/note/.test(this.label)) {
+      this.iconPath = NoteIcon
     }
     else {
       this.iconPath = TextIcon

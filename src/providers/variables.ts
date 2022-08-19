@@ -22,9 +22,8 @@ export class VariablesProvider implements vscode.TreeDataProvider<Variable> {
   }
 
   private async getAllVariables (): Promise<Variable[]> {
-    const raw = await getFleetVariables(this.balenaSdk, this.fleetId)
-    const releases = raw.map((v: ApplicationVariable) => new Variable(`${v.name}: ${v.value}`, vscode.TreeItemCollapsibleState.None))
-    return releases
+    const variables = await getFleetVariables(this.balenaSdk, this.fleetId)
+    return variables.map((v: ApplicationVariable) => new Variable(`${v.name}: ${v.value}`, vscode.TreeItemCollapsibleState.None))
   }
 }
 
