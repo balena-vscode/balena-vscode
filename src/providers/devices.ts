@@ -17,7 +17,7 @@ import {
   NoteIcon
 } from '../icons'
 
-import { BalenaSDK, Device as FleetDevice, getDevices } from '../lib/balena'
+import { BalenaSDK, Device as FleetDevice, getDeviceByUuid, getDevices } from '../lib/balena'
 
 export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceMeta> {
   private _onDidChangeTreeData: vscode.EventEmitter<Device | DeviceMeta | undefined | void> = new vscode.EventEmitter<Device | DeviceMeta | undefined | void>()
@@ -35,7 +35,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceM
 
   getChildren(element?: Device): Thenable<Device[] | DeviceMeta[]> {
     if (element) {
-      return Promise.resolve(this.getDeviceMeta(element.device))
+      return Promise.resolve(this.getDeviceMeta(element.id))
     } else {
       return Promise.resolve(this.getAllDevices())
     }
@@ -44,13 +44,14 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceM
   private async getAllDevices(): Promise<Device[]> {
     const devices = await getDevices(this.balenaSdk, this.fleetId)
     return devices.map((d: FleetDevice) =>
-      new Device(d, `${d.device_name}`, vscode.TreeItemCollapsibleState.Collapsed)
+      new Device(`${d.device_name}`, vscode.TreeItemCollapsibleState.Collapsed, d.uuid, d.is_online, d.api_heartbeat_state)
     )
       // sort by online status then by label
-      .sort((a, b) => (a.status - b.status) + a.device.device_name.localeCompare(b.device.device_name))
+      .sort((a, b) => (a.status - b.status) + a.label.localeCompare(b.label))
   }
 
-  private getDeviceMeta(device: FleetDevice): DeviceMeta[] {
+  private async getDeviceMeta(deviceId: string): Promise<DeviceMeta[]> {
+    const device = await getDeviceByUuid(this.balenaSdk, deviceId)
     return Object.entries(device)
       .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
       .map(item => new DeviceMeta(`${item[0]}: ${item[1]}`, vscode.TreeItemCollapsibleState.None))
@@ -64,12 +65,14 @@ enum DeviceStatus {
   Offline
 }
 export class Device extends vscode.TreeItem {
-  public status: DeviceStatus = DeviceStatus.Offline
+  public status = DeviceStatus.Offline
 
   constructor(
-    public readonly device: FleetDevice,
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly id: string,
+    private readonly isOnline: boolean,
+    private readonly apiStatus: string,
   ) {
     super(label, collapsibleState)
     this.setDeviceStatus()
@@ -77,17 +80,17 @@ export class Device extends vscode.TreeItem {
 
 
   private setDeviceStatus() {
-    if (this.device.is_online) {
+    if (this.isOnline) {
       this.status = DeviceStatus.Online
-      this.tooltip = this.device.status[0].toUpperCase().concat(this.device.status.slice(1));
+      this.tooltip = this.apiStatus[0].toUpperCase().concat(this.apiStatus.slice(1));
       this.iconPath = DeviceOnlineIcon
-    } else if (!this.device.is_online && this.device.status == "online") {
+    } else if (!this.isOnline && this.apiStatus == "online") {
       this.status = DeviceStatus.OnlineHeartbeatOnly
       this.tooltip = "Online (Heartbeat Only)";
       this.iconPath = DeviceHeartbeatOnlyIcon
     } else {
       this.status = DeviceStatus.Offline
-      this.tooltip = this.device.status[0].toUpperCase().concat(this.device.status.slice(1));
+      this.tooltip = this.apiStatus[0].toUpperCase().concat(this.apiStatus.slice(1));
       this.iconPath = DeviceOfflineIcon
     }
   }

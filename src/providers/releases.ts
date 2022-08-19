@@ -12,7 +12,7 @@ import {
   NoteIcon
 } from '../icons'
 
-import { BalenaSDK, Release as FleetRelease, getFleetReleases } from '../lib/balena'
+import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseById } from '../lib/balena'
 
 export class ReleasesProvider implements vscode.TreeDataProvider<Release | ReleaseMeta> {
   private _onDidChangeTreeData: vscode.EventEmitter<Release | ReleaseMeta | undefined | void> = new vscode.EventEmitter<Release | ReleaseMeta | undefined | void>()
@@ -30,7 +30,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Relea
 
   getChildren(element?: Release): Thenable<Release[] | ReleaseMeta[]> {
     if (element) {
-      return Promise.resolve(this.getReleaseMeta(element.release))
+      return Promise.resolve(this.getReleaseMeta(element.id))
     } else {
       return Promise.resolve(this.getAllReleases())
     }
@@ -39,10 +39,11 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Relea
   private async getAllReleases(): Promise<Release[]> {
     const releases = await getFleetReleases(this.balenaSdk, this.fleetId)
     return releases.map((r: FleetRelease) =>
-      new Release(r, `${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed))
+      new Release(`${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date))
   }
 
-  private getReleaseMeta(release: FleetRelease): ReleaseMeta[] {
+  private async getReleaseMeta(releaseId: string): Promise<ReleaseMeta[]> {
+    const release = await getFleetReleaseById(this.balenaSdk, releaseId)
     return Object.entries(release)
       .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
       .map(item => new ReleaseMeta(`${item[0]}: ${item[1]}`, vscode.TreeItemCollapsibleState.None))
@@ -50,31 +51,47 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Relea
   }
 }
 
+enum ReleaseStatus {
+  Finalized,
+  Success,
+  Canceled,
+  Failed,
+  Unknown
+}
 export class Release extends vscode.TreeItem {
+  public status = ReleaseStatus.Unknown
+
   constructor(
-    public readonly release: FleetRelease,
     public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly id: string,
+    private readonly buildStatus: string | null,
+    private readonly isFinalized: boolean,
+    private readonly isFinalizedAtDate: string | null,
   ) {
     super(label, collapsibleState)
     this.setBuildStatus();
   }
 
   private setBuildStatus() {
-    const buildStatus = this.release.status;
-    if (buildStatus === "success" && this.release.is_final) {
-      this.tooltip = `Finalized at ${this.release.is_finalized_at__date}`
+    if (this.buildStatus === "success" && this.isFinalized) {
+      this.status = ReleaseStatus.Finalized
+      this.tooltip = `Finalized at ${this.isFinalizedAtDate}`
       this.iconPath = ReleaseFinalizedIcon
-    } else if (buildStatus === "success") {
-      this.tooltip = "Success"
+    } else if (this.buildStatus === "success") {
+      this.status = ReleaseStatus.Success
+      this.tooltip = "Successfully Built"
       this.iconPath = ReleaseValidIcon
-    } else if (buildStatus === "cancelled") {
+    } else if (this.buildStatus === "cancelled") {
+      this.status = ReleaseStatus.Canceled
       this.tooltip = "Canceled"
       this.iconPath = ReleaseCanceledIcon
-    } else if (buildStatus === "failed") {
+    } else if (this.buildStatus === "failed") {
+      this.status = ReleaseStatus.Failed
       this.tooltip = "Failed"
       this.iconPath = ReleaseFailedIcon
     } else {
+      this.status = ReleaseStatus.Unknown
       this.tooltip = "Unknown"
       this.iconPath = ReleaseUnknownIcon
     }
