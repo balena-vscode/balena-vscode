@@ -2,17 +2,16 @@ import * as vscode from 'vscode'
 import * as settings from '../settings'
 import { BehaviorSubject } from 'rxjs'
 import { getCommandUri, selectActiveFleet } from '../commands'
-import { getFleets, useBalenaClient } from '../lib/balena'
+import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '../lib/balena'
 
-export const SelectedFleet$ = new BehaviorSubject<string | undefined>(undefined)
+export const SelectedFleet$ = new BehaviorSubject<Fleet | undefined>(undefined)
 
 export const registerView = async (context: vscode.ExtensionContext) => {
   fleetStatusItem = createFleetStatusItem()
   context.subscriptions.push(fleetStatusItem)
 
-  const initialFleet = settings.getDefaultFleet() ?? (await getFleets(useBalenaClient()))[0].slug
-  SelectedFleet$.next(initialFleet)
-  SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet ?? 'None'))
+  SelectedFleet$.next(await getInitialFleet())
+  SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet?.slug ?? 'None'))
 }
 
 export const showSelectFleet = async () => {
@@ -20,15 +19,26 @@ export const showSelectFleet = async () => {
   const fleets = await getFleets(balena)
 
   const fleetIds = fleets.map(f => f.slug)
-  const fleet = (await vscode.window.showQuickPick(fleetIds, {
+  const selectedFleetId = (await vscode.window.showQuickPick(fleetIds, {
     placeHolder: 'Select the Fleet to activate...'
   }))
 
-  if (fleet) {
-    SelectedFleet$.next(fleet)
+  if (selectedFleetId) {
+    const selectedFleet = fleets.find((f, i) => fleets[i].slug === f.slug)
+    SelectedFleet$.next(selectedFleet)
   }
 
-  return fleet
+  return selectedFleetId
+}
+
+const getInitialFleet = async () => {
+  const balena = useBalenaClient()
+  const userDefault = settings.getDefaultFleet()
+  if(userDefault) {
+    return await getFleetById(balena, userDefault)
+  } else {
+    return (await getFleets(balena))[0]
+  }
 }
 
 let fleetStatusItem: vscode.StatusBarItem

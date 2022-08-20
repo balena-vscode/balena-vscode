@@ -3,6 +3,10 @@ import * as settings from '../../settings'
 import { getSdk, SdkOptions } from 'balena-sdk'
 
 export * from 'balena-sdk'
+export { 
+  type Application as Fleet,
+  type ApplicationVariable as FleetVariable
+} from 'balena-sdk'
 
 /**
  * Returns a Balena SDK Client configured with any user workspace options

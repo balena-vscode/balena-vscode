@@ -1,6 +1,7 @@
 node_modules/
 .direnv/
+.vscode/ltex*
 out/
+test/balena-nodejs-hello-world
 *.img
 *.secret
-test/balena-nodejs-hello-world

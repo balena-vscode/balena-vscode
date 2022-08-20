@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 
-export const DeviceOnlineIcon = new vscode.ThemeIcon('broadcast', new vscode.ThemeColor('ports.iconRunningProcess'))
+export const DeviceOnlineIcon = new vscode.ThemeIcon('broadcast', new vscode.ThemeColor('testing.iconPassed'))
 export const DeviceHeartbeatOnlyIcon = new vscode.ThemeIcon('pulse', new vscode.ThemeColor('list.warningForeground'))
 export const DeviceOfflineIcon = new vscode.ThemeIcon('debug-disconnect')
 

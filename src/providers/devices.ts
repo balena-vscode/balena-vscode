@@ -1,27 +1,16 @@
 import * as vscode from 'vscode'
+import { BalenaSDK, Device as FleetDevice, getDeviceById, getDevices } from '../lib/balena'
+import { Meta } from './meta'
 import {
   DeviceOnlineIcon, 
   DeviceHeartbeatOnlyIcon, 
   DeviceOfflineIcon,
-  LocationIcon,
-  DateTimeIcon,
-  MemoryIcon,
-  StorageIcon,
-  BoolenIcon,
-  CpuIcon,
-  DesiredStateIcon,
-  InProgressIcon,
-  NetworkAddressIcon,
-  PowerIcon,
-  TextIcon,
-  NoteIcon
 } from '../icons'
 
-import { BalenaSDK, Device as FleetDevice, getDeviceByUuid, getDevices } from '../lib/balena'
 
-export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceMeta> {
-  private _onDidChangeTreeData: vscode.EventEmitter<Device | DeviceMeta | undefined | void> = new vscode.EventEmitter<Device | DeviceMeta | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<Device | DeviceMeta | undefined | void> = this._onDidChangeTreeData.event
+export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
+  private _onDidChangeTreeData: vscode.EventEmitter<Device | Meta | undefined | void> = new vscode.EventEmitter<Device | Meta | undefined | void>()
+  readonly onDidChangeTreeData: vscode.Event<Device | Meta | undefined | void> = this._onDidChangeTreeData.event
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string) { }
 
@@ -33,7 +22,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceM
     return element
   }
 
-  getChildren(element?: Device): Thenable<Device[] | DeviceMeta[]> {
+  getChildren(element?: Device): Thenable<Device[] | Meta[]> {
     if (element) {
       return Promise.resolve(this.getDeviceMeta(element.id))
     } else {
@@ -50,11 +39,11 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | DeviceM
       .sort((a, b) => (a.status - b.status) + a.label.localeCompare(b.label))
   }
 
-  private async getDeviceMeta(deviceId: string): Promise<DeviceMeta[]> {
-    const device = await getDeviceByUuid(this.balenaSdk, deviceId)
+  private async getDeviceMeta(deviceId: string): Promise<Meta[]> {
+    const device = await getDeviceById(this.balenaSdk, deviceId)
     return Object.entries(device)
       .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
-      .map(item => new DeviceMeta(`${item[0]}: ${item[1]}`, vscode.TreeItemCollapsibleState.None))
+      .map(item => new Meta(`${item[0]}: ${item[1]}`))
       .sort((a, b) => a.label.localeCompare(b.label))
   }
 }
@@ -96,55 +85,4 @@ export class Device extends vscode.TreeItem {
   }
 
   contextValue = 'device'
-}
-
-export class DeviceMeta extends vscode.TreeItem {
-  constructor(
-    public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-  ) {
-    super(label, collapsibleState)
-    this.setMetaIcon();
-  }
-
-  private setMetaIcon() {
-    if (/created_at|last_.*_event|modified_at/.test(this.label)) {
-      this.iconPath = DateTimeIcon
-    }
-    else if (/is_/.test(this.label)) {
-      this.iconPath = BoolenIcon
-    }
-    else if (/location|longitude|latitude/.test(this.label)) {
-      this.iconPath = LocationIcon
-    }
-    else if (/memory_/.test(this.label)) {
-      this.iconPath = MemoryIcon
-    }
-    else if (/storage_/.test(this.label)) {
-      this.iconPath = StorageIcon
-    }
-    else if (/cpu_/.test(this.label)) {
-      this.iconPath = CpuIcon
-    }
-    else if (/should_be_/.test(this.label)) {
-      this.iconPath = DesiredStateIcon
-    }
-    else if (/_progress/.test(this.label)) {
-      this.iconPath = InProgressIcon
-    }
-    else if (/_address/.test(this.label)) {
-      this.iconPath = NetworkAddressIcon
-    }
-    else if (/volt/.test(this.label)) {
-      this.iconPath = PowerIcon
-    }
-    else if (/note/.test(this.label)) {
-      this.iconPath = NoteIcon
-    }
-    else {
-      this.iconPath = TextIcon
-    }
-  }
-
-  contextValue = 'deviceMeta'
 }

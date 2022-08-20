@@ -1,22 +1,18 @@
 import * as vscode from 'vscode'
+import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseById } from '../lib/balena'
+import { Meta } from './meta'
 import {
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
   ReleaseUnknownIcon,
   ReleaseValidIcon,
   ReleaseFinalizedIcon,
-  DateTimeIcon,
-  TextIcon,
-  BoolenIcon,
-  LogIcon,
-  NoteIcon
 } from '../icons'
 
-import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseById } from '../lib/balena'
 
-export class ReleasesProvider implements vscode.TreeDataProvider<Release | ReleaseMeta> {
-  private _onDidChangeTreeData: vscode.EventEmitter<Release | ReleaseMeta | undefined | void> = new vscode.EventEmitter<Release | ReleaseMeta | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<Release | ReleaseMeta | undefined | void> = this._onDidChangeTreeData.event
+export class ReleasesProvider implements vscode.TreeDataProvider<Release | Meta> {
+  private _onDidChangeTreeData: vscode.EventEmitter<Release | Meta | undefined | void> = new vscode.EventEmitter<Release | Meta | undefined | void>()
+  readonly onDidChangeTreeData: vscode.Event<Release | Meta | undefined | void> = this._onDidChangeTreeData.event
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string | number) { }
 
@@ -28,7 +24,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Relea
     return element
   }
 
-  getChildren(element?: Release): Thenable<Release[] | ReleaseMeta[]> {
+  getChildren(element?: Release): Thenable<Release[] | Meta[]> {
     if (element) {
       return Promise.resolve(this.getReleaseMeta(element.id))
     } else {
@@ -42,11 +38,11 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Relea
       new Release(`${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date))
   }
 
-  private async getReleaseMeta(releaseId: string): Promise<ReleaseMeta[]> {
+  private async getReleaseMeta(releaseId: string): Promise<Meta[]> {
     const release = await getFleetReleaseById(this.balenaSdk, releaseId)
     return Object.entries(release)
       .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
-      .map(item => new ReleaseMeta(`${item[0]}: ${item[1]}`, vscode.TreeItemCollapsibleState.None))
+      .map(item => new Meta(`${item[0]}: ${item[1]}`))
       .sort((a, b) => a.label.localeCompare(b.label))
   }
 }
@@ -98,35 +94,4 @@ export class Release extends vscode.TreeItem {
   }
 
   contextValue = 'release'
-}
-
-export class ReleaseMeta extends vscode.TreeItem {
-  constructor(
-    public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {
-    super(label, collapsibleState)
-    this.setMetaIcon()
-  }
-
-  private setMetaIcon() {
-    if (/created_at|timestamp|_date/.test(this.label)) {
-      this.iconPath = DateTimeIcon
-    }
-    else if (/is_/.test(this.label)) {
-      this.iconPath = BoolenIcon
-    }
-    else if (/_log/.test(this.label)) {
-      this.iconPath = LogIcon
-    }
-    else if (/note/.test(this.label)) {
-      this.iconPath = NoteIcon
-    }
-    else {
-      this.iconPath = TextIcon
-    }
-
-  }
-
-  contextValue = 'releaseMeta'
 }
