@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs'
 import * as vscode from 'vscode'
-import { Device, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDevices, useBalenaClient } from '../lib/balena'
-import { MetaProvider, VariablesProvider } from '../providers'
+import { Device, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDevices, getDeviceServices, useBalenaClient } from '../lib/balena'
+import { MetaProvider, ServicesProvider, VariablesProvider } from '../providers'
 import { SelectedFleet$ } from './StatusBar'
 
 export const SelectedDevice$ = new BehaviorSubject<Device | undefined>(undefined)
@@ -16,7 +16,7 @@ export const registerView = () => {
             })
             vscode.window.createTreeView('device-services', {
                 canSelectMany: true,
-                treeDataProvider: new MetaProvider(balena, getDeviceById, device.uuid)
+                treeDataProvider: new ServicesProvider(balena, getDeviceServices, device.uuid)
             })
             vscode.window.createTreeView('device-variables', {
                 canSelectMany: true,

@@ -4,7 +4,7 @@ import { showLoginOptions } from './views/Authentication'
 import { showSelectFleet } from './views/StatusBar'
 import * as notifications from './views/Notifications'
 import { EXTENSION_URI_ROOT } from './extension'
-import { SelectedDevice$, showInspectDevice } from './views/DeviceExplorer'
+import { SelectedDevice$, showInspectDevice } from './views/DeviceInspector'
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(getCommandUri(loginToBalenaCloud), loginToBalenaCloud))

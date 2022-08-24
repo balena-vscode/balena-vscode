@@ -1,4 +1,4 @@
-import { BalenaSDK, Device, Application as Fleet } from '../lib/balena'
+import { BalenaSDK, Device, Fleet } from '../lib/balena'
 import * as vscode from 'vscode'
 import {
     BoolenIcon,
