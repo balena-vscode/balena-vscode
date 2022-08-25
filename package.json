@@ -63,6 +63,7 @@
 			],
 			"device-inspector": [
 				{
+					"type": "webview",
 					"id": "device-summary",
 					"name": "Summary"
 				},

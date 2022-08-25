@@ -10,6 +10,6 @@ export function activate (context: vscode.ExtensionContext) {
   registerCommands(context)
   registerStatusBarView(context)
   registerFleetExplorerView()
-  registerDeviceInspectorView()
+  registerDeviceInspectorView(context)
   return context
 }

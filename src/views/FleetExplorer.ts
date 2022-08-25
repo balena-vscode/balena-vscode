@@ -13,6 +13,8 @@ export const registerView = () => {
         treeDataProvider: new DevicesProvider(balena, fleet.slug)
       })
 
+      // https://stackoverflow.com/questions/31639563/how-to-filter-files-shown-in-visual-studio-code/73039128#73039128
+      // TODO: ensure filtering by commit works
       vscode.window.createTreeView('fleet-releases', {
         showCollapseAll: true,
         canSelectMany: true,
