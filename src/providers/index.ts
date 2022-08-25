@@ -1,4 +1,5 @@
 export * from './devices'
-export * from './releases'
-export * from './variables'
 export * from './meta'
+export * from './releases'
+export * from './services'
+export * from './variables'

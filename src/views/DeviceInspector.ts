@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs'
 import * as vscode from 'vscode'
-import { Device, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDevices, getDeviceServices, useBalenaClient } from '../lib/balena'
+import { Device, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '../lib/balena'
 import { MetaProvider, ServicesProvider, VariablesProvider } from '../providers'
 import { SelectedFleet$ } from './StatusBar'
 
@@ -16,7 +16,7 @@ export const registerView = () => {
             })
             vscode.window.createTreeView('device-services', {
                 canSelectMany: true,
-                treeDataProvider: new ServicesProvider(balena, getDeviceServices, device.uuid)
+                treeDataProvider: new ServicesProvider(balena, getDeviceWithServices, device.uuid)
             })
             vscode.window.createTreeView('device-variables', {
                 canSelectMany: true,
@@ -34,19 +34,30 @@ export const showInspectDevice = () => {
     const balena = useBalenaClient()
     SelectedFleet$.subscribe(async fleet => {
         if (fleet) {
-            const devices = await getDevices(balena, fleet.slug)
-            const deviceIds = devices.map(d => d.device_name)
-            const selectedDeviceId = await vscode.window.showQuickPick(deviceIds, {
-                placeHolder: 'Select the Device to inspect...'
+            const devices = await listDeviceIds(balena, fleet.slug)
+            const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid))
+            const selectedDeviceId = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
+                placeHolder: 'Select the Device to inspect...',
             })
 
             if (selectedDeviceId) {
-                const selectedDevice = devices.find(d => d.device_name === selectedDeviceId)
-                if (selectedDevice) {
-                    SelectedDevice$.next(selectedDevice)
-                    vscode.commands.executeCommand('device-meta.focus')
-                }
+                const device = await getDeviceWithServices(balena, selectedDeviceId.uuid)
+                SelectedDevice$.next(device)
+                vscode.commands.executeCommand('device-meta.focus')
             }
         }
     }).unsubscribe()
+}
+
+class DeviceItem implements vscode.QuickPickItem {
+    label: string
+    description: string
+
+    constructor(
+        public device_name: string,
+        public uuid: string,
+    ) {
+        this.label = device_name
+        this.description = uuid.slice(0,7)
+    }
 }
