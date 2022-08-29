@@ -1,28 +1,30 @@
 import { BehaviorSubject } from 'rxjs'
 import * as vscode from 'vscode'
-import { Device, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '../lib/balena'
+import { DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '../lib/balena'
 import { MetaProvider, ServicesProvider, VariablesProvider, DeviceSummaryProvider } from '../providers'
 import { SelectedFleet$ } from './StatusBar'
 
-export const SelectedDevice$ = new BehaviorSubject<Device | undefined>(undefined)
+export const SelectedDevice$ = new BehaviorSubject<DeviceWithServiceDetails | undefined>(undefined)
 
 export const registerView = (context: vscode.ExtensionContext) => {
     const balena = useBalenaClient()
     SelectedDevice$.subscribe(device => {
         if(device) {
-            vscode.window.registerWebviewViewProvider(DeviceSummaryProvider.viewType,  new DeviceSummaryProvider(context.extensionUri))
-            vscode.window.createTreeView('device-services', {
+            context.subscriptions.push(vscode.window.createTreeView('device-summary', {
+                treeDataProvider: new DeviceSummaryProvider(balena, device)
+            }))
+            context.subscriptions.push(vscode.window.createTreeView('device-services', {
                 canSelectMany: true,
                 treeDataProvider: new ServicesProvider(balena, getDeviceWithServices, device.uuid)
-            })
-            vscode.window.createTreeView('device-variables', {
+            }))
+            context.subscriptions.push(vscode.window.createTreeView('device-variables', {
                 canSelectMany: true,
                 treeDataProvider: new VariablesProvider(balena, getDeviceConfigVariables, getDeviceEnvVariables, device.uuid)
-            })
-            vscode.window.createTreeView('device-meta', {
+            }))
+            context.subscriptions.push(vscode.window.createTreeView('device-meta', {
                 canSelectMany: true,
                 treeDataProvider: new MetaProvider(balena, getDeviceById, device.uuid)
-            })
+            }))
         }
     })
 }

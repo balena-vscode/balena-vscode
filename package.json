@@ -63,7 +63,6 @@
 			],
 			"device-inspector": [
 				{
-					"type": "webview",
 					"id": "device-summary",
 					"name": "Summary"
 				},
@@ -84,17 +83,29 @@
 		"commands": [
 			{
 				"command": "balena-vscode.loginToBalenaCloud",
-				"title": "Balena: Login to Balena Cloud"
+				"title": "Login to Balena Cloud",
+				"category": "Balena"
 			},
 			{
 				"command": "balena-vscode.selectActiveFleet",
-				"title": "Balena: Select Active Fleet"
+				"title": "Select Active Fleet",
+				"category": "Balena Fleet Explorer"
 			},
 			{
 				"command": "balena-vscode.inspectDevice",
-				"title": "Balena: Select device to inspect..."
+				"title": "Inspect Device",
+				"category": "Balena Device Inspector"
 			}
-		]
+		],
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "balena-vscode.inspectDevice",
+					"when": "view == fleet-devices",
+					"group": "navigation"
+				}
+			]
+		}
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",

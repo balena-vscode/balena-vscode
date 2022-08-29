@@ -1,10 +1,11 @@
 import * as vscode from 'vscode'
-import { Device, isLoggedIn, useBalenaClient } from './lib/balena'
+import { getDeviceWithServices, isLoggedIn, useBalenaClient } from './lib/balena'
 import { showLoginOptions } from './views/Authentication'
 import { showSelectFleet } from './views/StatusBar'
 import * as notifications from './views/Notifications'
 import { EXTENSION_URI_ROOT } from './extension'
 import { SelectedDevice$, showInspectDevice } from './views/DeviceInspector'
+import { Device } from './providers'
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(getCommandUri(loginToBalenaCloud), loginToBalenaCloud))
@@ -20,13 +21,19 @@ export const loginToBalenaCloud = async () => {
     await showLoginOptions()
   }
 }
-export const selectActiveFleet = async () => await showSelectFleet()
+export const selectActiveFleet = async () => {
+  await showSelectFleet()
+    vscode.commands.executeCommand("fleet-devices.focus")
+}
 
-export const inspectDevice = (device?: Device) => {
+export const inspectDevice = async (device?: Device) => {
   if(device) {
-    SelectedDevice$.next(device)
-    vscode.commands.executeCommand("device-meta.focus")
-  } else {
+    const balena = useBalenaClient()
+    const deviceWithServices = await getDeviceWithServices(balena, device.uuid)
+    SelectedDevice$.next(deviceWithServices)
+    vscode.commands.executeCommand("device-summary.focus")
+  }
+  else {
     showInspectDevice()
   }
 }

@@ -1,69 +1,87 @@
 import * as vscode from 'vscode'
+import { BalenaSDK, DeviceWithServiceDetails, getDeviceType } from '../lib/balena'
+import { Device } from './devices'
 
-export class DeviceSummaryProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = "device-summary";
+// Mockup of Summary Pane intended behavior
+//
+// <status icon> device-bird [QEMU X86 64]
+// UUID: 4833e474c307124a8e5609a84419a1ba > click to copy
+// Last Seen: 2022-08-18T03:59Z > click to copy
 
-    private _view?: vscode.WebviewView;
+// Host OS: balenaOS 2.83.18+rev5 > click opens changelog in new editor tab
+// Supervisor Version: 12.10.3 > click opens changelog in new editor tab
+// Current Release: 6e990a9 > click to copy
+// Target Release: 6e990a9 > click to copy
 
-    constructor(
-		private readonly _extensionUri: vscode.Uri,
+// <status icon> Public Device URL: Disabled > click to copy URL, right click toggle enabled?
+
+// Local IP Addresses > expanded by default
+// - 10.0.2.16 > click to copy
+// - 10.0.2.15 
+
+// Public IP Addresses > expanded by default
+// - 136.49.196.128 > click to copy
+
+// MAC Address > expanded by default
+// - 52:54:00:12:34:56
+
+// Tags > expanded by default
+// - production
+// - entryway
+
+// Notes > click to open new editor tab
+// Wrap text or truncate? 
+
+export type SummaryItem = Device | ClickToCopy | DownloadTextToTab | ToggleActionWithCopy | List
+export class DeviceSummaryProvider implements vscode.TreeDataProvider<SummaryItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<SummaryItem | undefined | void> = new vscode.EventEmitter<SummaryItem | undefined | void>()
+  readonly onDidChangeTreeData: vscode.Event<SummaryItem | undefined | void> = this._onDidChangeTreeData.event
+
+  constructor(
+	private balenaSdk: BalenaSDK,
+	private device: DeviceWithServiceDetails
 	) { }
 
-	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		// context: vscode.WebviewViewResolveContext,
-		// _token: vscode.CancellationToken,
-	) {
-		this._view = webviewView;
+  refresh(): void {
+    this._onDidChangeTreeData.fire()
+  }
 
-		webviewView.webview.options = {
-			// Allow scripts in the webview
-			enableScripts: true,
+  getTreeItem(element: SummaryItem): vscode.TreeItem {
+    return element
+  }
 
-			localResourceRoots: [
-				this._extensionUri
-			]
-		};
+  getChildren(element?: SummaryItem): Thenable<SummaryItem[]> {
+    if(!element) {
+      return Promise.resolve(this.buildSummaryItems())
+    } else {
+      return Promise.resolve([])
+    }
+  }
 
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+  private async buildSummaryItems(): Promise<SummaryItem[]> {
+    return [
+      ...await this.buildDeviceItems(),
+    ]
+  }
 
-		webviewView.webview.onDidReceiveMessage(data => {
-            console.log(data)
-		});
-	}
-
-    private _getHtmlForWebview(webview: vscode.Webview) {
-		// // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		// const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
-
-		// // Do the same for the stylesheet.
-		// const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
-		// const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-		// const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
-				// <link href="${styleResetUri}" rel="stylesheet">
-				// <link href="${styleVSCodeUri}" rel="stylesheet">
-				// <link href="${styleMainUri}" rel="stylesheet">
-
-
-		return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-lkjsadf';">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				
-				<title>Device Summary</title>
-			</head>
-			<body>
-				<ul class="color-list">
-				</ul>
-				<h1> Hello World </h1>
-				<script nonce="" src=""></script>
-			</body>
-			</html>`;
-	}
+  private async buildDeviceItems(): Promise<Device[]> {
+    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type)).name
+    return [
+      new Device(`${this.device.device_name} - ${deviceType}`, vscode.TreeItemCollapsibleState.None, this.device.uuid, this.device.is_online, this.device.api_heartbeat_state),
+    ]
+  }
 }
+
+export class ClickToCopy extends vscode.TreeItem {
+  constructor(
+    public label: string,
+    public collapsibleState?: vscode.TreeItemCollapsibleState,
+    public command?: vscode.Command
+  ) {
+    super(label, collapsibleState)
+  }
+}
+
+export class DownloadTextToTab extends vscode.TreeItem {}
+export class ToggleActionWithCopy extends vscode.TreeItem {}
+export class List extends vscode.TreeItem {}

@@ -35,8 +35,8 @@ export class VariablesProvider implements vscode.TreeDataProvider<Variable | Var
 
   private async initializeView(): Promise<VariablesContainer[]> {
     return [
-      new VariablesContainer('configuration', vscode.TreeItemCollapsibleState.Collapsed),
-      new VariablesContainer('environment', vscode.TreeItemCollapsibleState.Collapsed),
+      new VariablesContainer('configuration', vscode.TreeItemCollapsibleState.Expanded),
+      new VariablesContainer('environment', vscode.TreeItemCollapsibleState.Expanded),
     ]
   }
 
