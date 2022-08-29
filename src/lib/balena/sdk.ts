@@ -1,6 +1,6 @@
 import * as settings from '../../settings'
 
-import { getSdk, SdkOptions } from 'balena-sdk'
+import { BalenaSDK, getSdk, SdkOptions } from 'balena-sdk'
 
 export * from 'balena-sdk'
 export { 
@@ -8,8 +8,9 @@ export {
   type ApplicationVariable as FleetVariable
 } from 'balena-sdk'
 
+let balenaSdk: BalenaSDK;
 /**
- * Returns a Balena SDK Client configured with any user workspace options
+ * Returns an existing Balena SDK Client, or creates a new instance, configured with any user workspace options
  *
  * @remarks
  * In NodeJS environments, the Balena SDK manages the authentication state for itsself.
@@ -17,7 +18,14 @@ export {
  *
  * @returns BalenaSDK
  */
-export const useBalenaClient = () => getSdk(getSdkOpts())
+export const useBalenaClient = () => {
+  if(!balenaSdk) {
+    balenaSdk = getSdk(getSdkOpts())
+    return balenaSdk
+  } else {
+    return balenaSdk
+  }
+}
 
 /**
  * Loads user and workspaces settings from the environment and returns an SdkOptions object
