@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import * as settings from '../settings'
 import { BehaviorSubject } from 'rxjs'
-import { getCommandUri, selectActiveFleet } from '../commands'
 import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '../lib/balena'
+import { CommandIds } from '../commands'
 
 export const SelectedFleet$ = new BehaviorSubject<Fleet | undefined>(undefined)
 
@@ -45,7 +45,7 @@ let fleetStatusItem: vscode.StatusBarItem
 const updateFleetStatusItemText = (fleet: string) => fleetStatusItem.text = `$(symbol-method) Active Fleet: ${fleet}`
 const createFleetStatusItem = () => {
   const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-  item.command = getCommandUri(selectActiveFleet)
+  item.command = CommandIds.SelectActiveFleet
   item.tooltip = 'Select Active Balena Fleet'
   item.show()
   return item

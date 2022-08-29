@@ -15,8 +15,8 @@
 		"compile-tests": "pnpm tsc-compile"
 	},
 	"activationEvents": [
-		"onView:fleet-devices",
-		"onView:device-meta",
+		"onView:fleetExplorer",
+		"onView:deviceInspector",
 		"onCommand:balena-vscode.loginToBalenaCloud",
 		"onCommand:balena-vscode.selectActiveFleet",
 		"onCommand:balena-vscode.inspectDevice"
@@ -25,57 +25,57 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "fleet-explorer",
+					"id": "fleetExplorer",
 					"title": "Balena: Fleet Explorer",
 					"icon": "$(symbol-method)"
 				}
 			],
 			"panel": [
 				{
-					"id": "device-inspector",
+					"id": "deviceInspector",
 					"title": "Balena: Device Inspector",
 					"icon": "$(symbol-method)"
 				}
 			]
 		},
 		"views": {
-			"fleet-explorer": [
+			"fleetExplorer": [
 				{
-					"id": "fleet-devices",
+					"id": "fleetDevices",
 					"name": "Devices",
 					"contextualTitle": "Balena: Fleet Explorer"
 				},
 				{
-					"id": "fleet-releases",
+					"id": "fleetReleases",
 					"name": "Releases",
 					"contextualTitle": "Balena: Fleet Explorer"
 				},
 				{
-					"id": "fleet-variables",
+					"id": "fleetVariables",
 					"name": "Variables",
 					"contextualTitle": "Balena: Fleet Explorer"
 				},
 				{
-					"id": "fleet-meta",
+					"id": "fleetMeta",
 					"name": "Meta",
 					"contextualTitle": "Balena: Fleet Explorer"
 				}
 			],
-			"device-inspector": [
+			"deviceInspector": [
 				{
-					"id": "device-summary",
+					"id": "deviceSummary",
 					"name": "Summary"
 				},
 				{
-					"id": "device-services",
+					"id": "deviceServices",
 					"name": "Services"
 				},
 				{
-					"id": "device-variables",
+					"id": "deviceVariables",
 					"name": "Variables"
 				},
 				{
-					"id": "device-meta",
+					"id": "deviceMeta",
 					"name": "Meta"
 				}
 			]
@@ -101,8 +101,7 @@
 			"view/item/context": [
 				{
 					"command": "balena-vscode.inspectDevice",
-					"when": "view == fleet-devices",
-					"group": "navigation"
+					"when": "view == fleetDevices"
 				}
 			]
 		}
