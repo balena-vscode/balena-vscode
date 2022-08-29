@@ -15,8 +15,8 @@
 		"compile-tests": "pnpm tsc-compile"
 	},
 	"activationEvents": [
-		"onView:fleetExplorer",
-		"onView:deviceInspector",
+		"onView:fleetDevices",
+		"onView:deviceSummary",
 		"onCommand:balena-vscode.loginToBalenaCloud",
 		"onCommand:balena-vscode.selectActiveFleet",
 		"onCommand:balena-vscode.inspectDevice"
@@ -58,25 +58,31 @@
 				{
 					"id": "fleetMeta",
 					"name": "Meta",
-					"contextualTitle": "Balena: Fleet Explorer"
+					"contextualTitle": "Balena: Fleet Explorer",
+					"visibility": "collapsed"
 				}
 			],
 			"deviceInspector": [
 				{
 					"id": "deviceSummary",
-					"name": "Summary"
+					"name": "Summary",
+					"contextualTitle": "Balena: Device Inspector"
 				},
 				{
 					"id": "deviceServices",
-					"name": "Services"
+					"name": "Services",
+					"contextualTitle": "Balena: Device Inspector"
 				},
 				{
 					"id": "deviceVariables",
-					"name": "Variables"
+					"name": "Variables",
+					"contextualTitle": "Balena: Device Inspector"
 				},
 				{
 					"id": "deviceMeta",
-					"name": "Meta"
+					"name": "Meta",
+					"contextualTitle": "Balena: Device Inspector",
+					"visibility": "collapsed"
 				}
 			]
 		},

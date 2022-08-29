@@ -1,6 +1,6 @@
 import { BalenaSDK, CurrentServiceWithCommit, DeviceWithServiceDetails } from '../lib/balena'
 import * as vscode from 'vscode'
-// import {} from '../icons'
+import { ServiceRunningIcon, ServiceStoppedIcon, UnknownIcon } from '../icons'
 
 export class ServicesProvider implements vscode.TreeDataProvider<Service> {
     private _onDidChangeTreeData: vscode.EventEmitter<Service | undefined | void> = new vscode.EventEmitter<Service | undefined | void>()
@@ -26,15 +26,28 @@ export class ServicesProvider implements vscode.TreeDataProvider<Service> {
 
     private async getAllServices(): Promise<Service[]> {
         const services = await this.resourceFetchMethod(this.balenaSdk, this.id)
-        return Object.keys(services.current_services).map(s => new Service(`${s} - (${services.current_services[s][0].status})`))
+        return Object.keys(services.current_services).map(s => new Service(s, services.current_services[s][0].status))
     }
 }
 
 export class Service extends vscode.TreeItem {
     constructor(
         public readonly label: string,
+        public readonly lastKnownStatus?: string
     ) {
         super(label)
+        this.setLastKnownStatusIcon()
+    }
+
+    setLastKnownStatusIcon() {
+        this.tooltip = this.lastKnownStatus
+        if(this.lastKnownStatus == "Running") {
+            this.iconPath = ServiceRunningIcon
+        } else if (this.lastKnownStatus == "Stopped") {
+            this.iconPath = ServiceStoppedIcon
+        } else {
+            this.iconPath = UnknownIcon
+        }
     }
 
     contextValue = 'service'

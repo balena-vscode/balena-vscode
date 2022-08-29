@@ -4,7 +4,7 @@ import { Meta } from './meta'
 import {
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
-  ReleaseUnknownIcon,
+  UnknownIcon,
   ReleaseValidIcon,
   ReleaseFinalizedIcon,
 } from '../icons'
@@ -89,7 +89,7 @@ export class Release extends vscode.TreeItem {
     } else {
       this.status = ReleaseStatus.Unknown
       this.tooltip = "Unknown"
-      this.iconPath = ReleaseUnknownIcon
+      this.iconPath = UnknownIcon
     }
   }
 

@@ -8,7 +8,7 @@ export const ReleaseFinalizedIcon  = new vscode.ThemeIcon('verified-filled', new
 export const ReleaseValidIcon = new vscode.ThemeIcon('pass', new vscode.ThemeColor('extensionIcon.preReleaseForeground'))
 export const ReleaseCanceledIcon = new vscode.ThemeIcon('circle-slash', new vscode.ThemeColor('list.warningForeground'))
 export const ReleaseFailedIcon = new vscode.ThemeIcon('error', new vscode.ThemeColor('list.errorForeground'))
-export const ReleaseUnknownIcon = new vscode.ThemeIcon('question')
+export const UnknownIcon = new vscode.ThemeIcon('question')
 
 export const VariableSet = new vscode.ThemeIcon('variable')
 
@@ -25,3 +25,6 @@ export const PowerIcon = new vscode.ThemeIcon('zap')
 export const TextIcon = new vscode.ThemeIcon('symbol-text')
 export const LogIcon = new vscode.ThemeIcon('notebook')
 export const NoteIcon = new vscode.ThemeIcon('note')
+
+export const ServiceRunningIcon = new vscode.ThemeIcon('debug-start')
+export const ServiceStoppedIcon = new vscode.ThemeIcon('debug-stop')
