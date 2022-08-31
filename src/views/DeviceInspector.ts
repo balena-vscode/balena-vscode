@@ -1,7 +1,6 @@
-import { focusDeviceInspector } from '../commands'
 import { BehaviorSubject } from 'rxjs'
 import * as vscode from 'vscode'
-import { DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '../lib/balena'
+import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '../lib/balena'
 import { MetaProvider, ServicesProvider, VariablesProvider, DeviceSummaryProvider } from '../providers'
 import { SelectedFleet$ } from './StatusBar'
 
@@ -40,34 +39,36 @@ export const registerView = (context: vscode.ExtensionContext) => {
     })
 }
 
-export const showInspectDeviceInput = () => {
+export const showSelectDeviceInput = async () => {
     const balena = useBalenaClient()
-    SelectedFleet$.subscribe(async fleet => {
-        if (fleet) {
-            const devices = await listDeviceIds(balena, fleet.slug)
-            const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid))
-            const selectedDeviceId = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
-                placeHolder: 'Select the Device to inspect...',
-            })
 
-            if (selectedDeviceId) {
-                const device = await getDeviceWithServices(balena, selectedDeviceId.uuid)
-                SelectedDevice$.next(device)
-                focusDeviceInspector()
-            }
+    class DeviceItem implements vscode.QuickPickItem {
+        label: string
+        description: string
+
+        constructor(
+            public device_name: string,
+            public uuid: string,
+        ) {
+            this.label = device_name
+            this.description = uuid.slice(0,7)
         }
+    }
+
+    let selectedFleet: Application | undefined;
+    SelectedFleet$.subscribe(fleet => {
+        selectedFleet = fleet
     }).unsubscribe()
-}
 
-class DeviceItem implements vscode.QuickPickItem {
-    label: string
-    description: string
+    if (selectedFleet) {
+        const devices = await listDeviceIds(balena, selectedFleet.slug)
+        const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid))
+        const selectedDevice = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
+            placeHolder: 'Select a device...',
+        })
 
-    constructor(
-        public device_name: string,
-        public uuid: string,
-    ) {
-        this.label = device_name
-        this.description = uuid.slice(0,7)
+        return selectedDevice
+    } else {
+        return undefined
     }
 }

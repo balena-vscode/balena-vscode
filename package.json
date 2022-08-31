@@ -100,14 +100,31 @@
 			{
 				"command": "balena-vscode.inspectDevice",
 				"title": "Inspect Device",
-				"category": "Balena Device Inspector"
+				"category": "Balena Device Inspector",
+				"icon": {
+					"dark": "$(inspect)",
+					"light": "$(inspect)"
+				}
+			},
+			{
+				"command": "balena-vscode.openSSHConnectionInTerminal",
+				"title": "Open SSH in Terminal",
+				"category": "Balena Device Inspector",
+				"icon": {
+					"dark": "$(terminal)",
+					"light": "$(terminal)"
+				}
 			}
 		],
 		"menus": {
 			"view/item/context": [
 				{
 					"command": "balena-vscode.inspectDevice",
-					"when": "view == fleetDevices"
+					"when": "view == fleetDevices && viewItem == device"
+				},
+				{
+					"command": "balena-vscode.openSSHConnectionInTerminal",
+					"when": "view == fleetDevices && viewItem == device"
 				}
 			]
 		}

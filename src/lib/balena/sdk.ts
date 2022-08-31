@@ -21,10 +21,9 @@ let balenaSdk: BalenaSDK;
 export const useBalenaClient = () => {
   if(!balenaSdk) {
     balenaSdk = getSdk(getSdkOpts())
-    return balenaSdk
-  } else {
-    return balenaSdk
-  }
+  } 
+
+  return balenaSdk
 }
 
 /**
