@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseById } from '../lib/balena'
+import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags } from '../lib/balena'
 import { Meta } from './meta'
 import {
   ReleaseCanceledIcon,
@@ -7,12 +7,16 @@ import {
   UnknownIcon,
   ReleaseValidIcon,
   ReleaseFinalizedIcon,
+  TagIcon,
+  TextIcon,
 } from '../icons'
 
 
-export class ReleasesProvider implements vscode.TreeDataProvider<Release | Meta> {
-  private _onDidChangeTreeData: vscode.EventEmitter<Release | Meta | undefined | void> = new vscode.EventEmitter<Release | Meta | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<Release | Meta | undefined | void> = this._onDidChangeTreeData.event
+export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | vscode.TreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<ReleaseItem | Meta | undefined | void> = new vscode.EventEmitter<ReleaseItem | Meta | undefined | void>()
+  readonly onDidChangeTreeData: vscode.Event<ReleaseItem | Meta | undefined | void> = this._onDidChangeTreeData.event
+
+  private selectedReleaseDetails: ReleaseWithImageDetails | undefined
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string | number) { }
 
@@ -20,41 +24,70 @@ export class ReleasesProvider implements vscode.TreeDataProvider<Release | Meta>
     this._onDidChangeTreeData.fire()
   }
 
-  getTreeItem(element: Release): vscode.TreeItem {
+  getTreeItem(element: ReleaseItem): vscode.TreeItem {
     return element
   }
 
-  getChildren(element?: Release): Thenable<Release[] | Meta[]> {
+  getChildren(element?: ReleaseItem): Thenable<ReleaseItem[] | vscode.TreeItem[]> {
     if (element) {
-      return Promise.resolve(this.getReleaseMeta(element.id))
+      switch(element.label) {
+        case "images":
+          return Promise.resolve(this.getImages())
+        case "tags":
+          return Promise.resolve(this.getTags())
+        default:
+          return Promise.resolve(this.initializeReleaseDetails(element.id))
+      }
     } else {
       return Promise.resolve(this.getAllReleases())
     }
   }
 
-  private async getAllReleases(): Promise<Release[]> {
+  private async getAllReleases(): Promise<ReleaseItem[]> {
     const releases = await getFleetReleases(this.balenaSdk, this.fleetId)
     return releases.map((r: FleetRelease) =>
-      new Release(`${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date))
+      new ReleaseItem(`${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date))
   }
 
-  private async getReleaseMeta(releaseId: string): Promise<Meta[]> {
-    const release = await getFleetReleaseById(this.balenaSdk, releaseId)
-    return Object.entries(release)
-      .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
-      .map(item => new Meta(`${item[0]}: ${item[1]}`))
-      .sort((a, b) => a.label.localeCompare(b.label))
+  private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
+    this.selectedReleaseDetails = await getFleetReleaseWithImageDetails(this.balenaSdk, releaseId)
+    return [
+      new vscode.TreeItem("images", vscode.TreeItemCollapsibleState.Collapsed),
+      new vscode.TreeItem("tags", vscode.TreeItemCollapsibleState.Collapsed),
+    ]
+  }
+
+  private async getImages(): Promise<ImageItem[]> {
+    if(this.selectedReleaseDetails) {
+      const items = []
+      for(const i of this.selectedReleaseDetails.images) {
+        const image = await getFleetReleaseImage(this.balenaSdk, i.id)
+        items.push(new ImageItem(image))
+      }
+      return items
+    } else {
+      return []
+    }
+  }
+
+  private async getTags(): Promise<TagItem[]> {
+    if(this.selectedReleaseDetails) {
+      const tags = await getFleetReleaseTags(this.balenaSdk, this.selectedReleaseDetails.id)
+      return tags.map(t => new TagItem(t))
+    } else {
+      return []
+    }
   }
 }
 
-enum ReleaseStatus {
+export enum ReleaseStatus {
   Finalized,
   Success,
   Canceled,
   Failed,
   Unknown
 }
-export class Release extends vscode.TreeItem {
+export class ReleaseItem extends vscode.TreeItem {
   public status = ReleaseStatus.Unknown
 
   constructor(
@@ -94,4 +127,28 @@ export class Release extends vscode.TreeItem {
   }
 
   contextValue = 'release'
+}
+
+export class ImageItem extends vscode.TreeItem {
+  constructor(
+    public readonly image: Image
+  ) {
+    super(image.content_hash ?? 'No Hash')
+    this.iconPath = TextIcon
+  }
+}
+
+export class TagItem extends vscode.TreeItem {
+  constructor(
+    public readonly tag: ReleaseTag | DeviceTag
+  ) {
+    super(`${tag.tag_key}: ${tag.value}`)
+    this.iconPath = TagIcon
+    this.tooltip = "Click to Copy Value"
+    this.command = {
+      command: 'editor.action.clipboardCopyAction',
+      title: '',
+      arguments: [tag.value] 
+    }
+  }
 }

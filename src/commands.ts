@@ -35,7 +35,7 @@ export const selectActiveFleet = async () => {
 export const inspectDevice = async (device?: Device) => {
   if(device) {
     const balena = useBalenaClient()
-    const deviceWithServices = await getDeviceWithServices(balena, device.uuid)
+    const deviceWithServices = await getDeviceWithServices(balena, device.id)
     SelectedDevice$.next(deviceWithServices)
     focusDeviceInspector()
   }

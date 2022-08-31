@@ -24,7 +24,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
 
   getChildren(element?: Device): Thenable<Device[] | Meta[]> {
     if (element) {
-      return Promise.resolve(this.getDeviceMeta(element.uuid))
+      return Promise.resolve(this.getDeviceMeta(element.id))
     } else {
       return Promise.resolve(this.getAllDevices())
     }
@@ -59,7 +59,7 @@ export class Device extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly uuid: string,
+    public readonly id: string,
     private readonly isOnline: boolean,
     private readonly apiStatus: string,
   ) {

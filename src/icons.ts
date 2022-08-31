@@ -25,6 +25,7 @@ export const PowerIcon = new vscode.ThemeIcon('zap')
 export const TextIcon = new vscode.ThemeIcon('symbol-text')
 export const LogIcon = new vscode.ThemeIcon('notebook')
 export const NoteIcon = new vscode.ThemeIcon('note')
+export const TagIcon = new vscode.ThemeIcon('tag')
 
 export const ServiceRunningIcon = new vscode.ThemeIcon('debug-start')
 export const ServiceStoppedIcon = new vscode.ThemeIcon('debug-stop')
