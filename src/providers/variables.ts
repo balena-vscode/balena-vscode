@@ -1,11 +1,11 @@
-import * as vscode from 'vscode'
-import { VariableSet } from '../icons'
+import * as vscode from 'vscode';
+import { VariableSet } from '@/icons';
 
-import { BalenaSDK, DeviceVariable, FleetVariable } from '../lib/balena'
+import { BalenaSDK, DeviceVariable, FleetVariable } from '@/lib/balena';
 
 export class VariablesProvider implements vscode.TreeDataProvider<Variable | VariablesContainer> {
-  private _onDidChangeTreeData: vscode.EventEmitter<Variable | VariablesContainer | undefined | void> = new vscode.EventEmitter<Variable | VariablesContainer | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<Variable | VariablesContainer | undefined | void> = this._onDidChangeTreeData.event
+  private _onDidChangeTreeData: vscode.EventEmitter<Variable | VariablesContainer | undefined | void> = new vscode.EventEmitter<Variable | VariablesContainer | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<Variable | VariablesContainer | undefined | void> = this._onDidChangeTreeData.event;
 
   constructor (
     private balenaSdk: BalenaSDK, 
@@ -15,21 +15,21 @@ export class VariablesProvider implements vscode.TreeDataProvider<Variable | Var
   ) {}
 
   refresh (): void {
-    this._onDidChangeTreeData.fire()
+    this._onDidChangeTreeData.fire();
   }
 
   getTreeItem (element: Variable): vscode.TreeItem {
-    return element
+    return element;
   }
 
   getChildren (element?: VariablesContainer): Thenable<Variable[] | VariablesContainer[]> {
     switch(element?.label) {
       case "configuration":
-        return Promise.resolve(this.getConfigVariables())
+        return Promise.resolve(this.getConfigVariables());
       case "environment":
-        return Promise.resolve(this.getEnvVariables())
+        return Promise.resolve(this.getEnvVariables());
       default:
-        return Promise.resolve(this.initializeView())
+        return Promise.resolve(this.initializeView());
     }
   }
 
@@ -37,17 +37,17 @@ export class VariablesProvider implements vscode.TreeDataProvider<Variable | Var
     return [
       new VariablesContainer('configuration', vscode.TreeItemCollapsibleState.Expanded),
       new VariablesContainer('environment', vscode.TreeItemCollapsibleState.Expanded),
-    ]
+    ];
   }
 
   private async getConfigVariables() : Promise<Variable[]> {
-    const configVars =  await this.configFetchMethod(this.balenaSdk, this.id)
-    return configVars.map(v => new Variable(`${v.name}: ${v.value}`))
+    const configVars =  await this.configFetchMethod(this.balenaSdk, this.id);
+    return configVars.map(v => new Variable(`${v.name}: ${v.value}`));
   }
 
   private async getEnvVariables() : Promise<Variable[]> {
-    const configVars =  await this.envFetchMethod(this.balenaSdk, this.id)
-    return configVars.map(v => new Variable(`${v.name}: ${v.value}`))
+    const configVars =  await this.envFetchMethod(this.balenaSdk, this.id);
+    return configVars.map(v => new Variable(`${v.name}: ${v.value}`));
   }
 }
 
@@ -56,17 +56,17 @@ export class VariablesContainer extends vscode.TreeItem {
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
   ) {
-    super(label, collapsibleState)
+    super(label, collapsibleState);
   }
-  contextValue = 'variableContainer'
+  contextValue = 'variableContainer';
 }
 
 export class Variable extends vscode.TreeItem {
   constructor (
         public readonly label: string
   ) {
-    super(label)
+    super(label);
   }
-  iconPath = VariableSet
-  contextValue = 'variable'
+  iconPath = VariableSet;
+  contextValue = 'variable';
 }

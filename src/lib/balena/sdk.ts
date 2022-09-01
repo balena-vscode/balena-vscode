@@ -1,12 +1,12 @@
-import * as settings from '../../settings'
+import * as settings from '@/settings';
 
-import { BalenaSDK, getSdk, SdkOptions } from 'balena-sdk'
+import { BalenaSDK, getSdk, SdkOptions } from 'balena-sdk';
 
-export * from 'balena-sdk'
+export * from 'balena-sdk';
 export { 
   type Application as Fleet,
   type ApplicationVariable as FleetVariable
-} from 'balena-sdk'
+} from 'balena-sdk';
 
 let balenaSdk: BalenaSDK;
 /**
@@ -20,11 +20,11 @@ let balenaSdk: BalenaSDK;
  */
 export const useBalenaClient = () => {
   if(!balenaSdk) {
-    balenaSdk = getSdk(getSdkOpts())
+    balenaSdk = getSdk(getSdkOpts());
   } 
 
-  return balenaSdk
-}
+  return balenaSdk;
+};
 
 /**
  * Loads user and workspaces settings from the environment and returns an SdkOptions object
@@ -33,17 +33,17 @@ export const useBalenaClient = () => {
  * @returns SdkOptions
  */
 export const getSdkOpts = () => {
-  const options: SdkOptions = {}
+  const options: SdkOptions = {};
 
-  const dataDirectory = settings.getBalenaSdkDataDirectory()
+  const dataDirectory = settings.getBalenaSdkDataDirectory();
   if (dataDirectory) {
-    options.dataDirectory = dataDirectory
+    options.dataDirectory = dataDirectory;
   }
 
-  const apiUrl = settings.getBalenaSdkApiUrl()
+  const apiUrl = settings.getBalenaSdkApiUrl();
   if (apiUrl) {
-    options.apiUrl = apiUrl
+    options.apiUrl = apiUrl;
   }
 
-  return options
-}
+  return options;
+};

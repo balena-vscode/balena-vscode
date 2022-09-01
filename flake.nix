@@ -15,6 +15,8 @@
       in rec {
         devShell = with pkgs; mkShell {
           buildInputs = [
+            nodejs
+            nodePackages.yo
             nodePackages.pnpm
             qemu
           ];

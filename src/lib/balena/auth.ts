@@ -1,4 +1,4 @@
-import { BalenaSDK } from 'balena-sdk'
+import { BalenaSDK } from 'balena-sdk';
 
 /**
  * Returns true if login is successful
@@ -8,9 +8,9 @@ import { BalenaSDK } from 'balena-sdk'
  * @returns boolean
  */
 export const loginWithToken = async (balenaSdk: BalenaSDK, authToken: string) => {
-  await balenaSdk.auth.loginWithToken(authToken)
-  return await balenaSdk.auth.isLoggedIn()
-}
+  await balenaSdk.auth.loginWithToken(authToken);
+  return await balenaSdk.auth.isLoggedIn();
+};
 
 /**
  * Returns true if login is successful
@@ -24,8 +24,8 @@ export const loginWithEmailPass = async (balenaSdk: BalenaSDK, email: string, pa
   await balenaSdk.auth.login({
     email,
     password
-  })
-  return await balenaSdk.auth.isLoggedIn()
-}
+  });
+  return await balenaSdk.auth.isLoggedIn();
+};
 
-export const isLoggedIn = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.isLoggedIn()
+export const isLoggedIn = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.isLoggedIn();

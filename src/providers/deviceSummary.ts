@@ -1,6 +1,6 @@
-import * as vscode from 'vscode'
-import { BalenaSDK, DeviceWithServiceDetails, getDeviceType } from '../lib/balena'
-import { Device } from './devices'
+import * as vscode from 'vscode';
+import { BalenaSDK, DeviceWithServiceDetails, getDeviceType } from '@/lib/balena';
+import { Device } from './devices';
 
 // Mockup of Summary Pane intended behavior
 //
@@ -32,10 +32,10 @@ import { Device } from './devices'
 // Notes > click to open new editor tab
 // Wrap text or truncate? 
 
-export type SummaryItem = Device | ClickToCopy | DownloadTextToTab | ToggleActionWithCopy | List
+export type SummaryItem = Device | ClickToCopy | DownloadTextToTab | ToggleActionWithCopy | List;
 export class DeviceSummaryProvider implements vscode.TreeDataProvider<SummaryItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<SummaryItem | undefined | void> = new vscode.EventEmitter<SummaryItem | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<SummaryItem | undefined | void> = this._onDidChangeTreeData.event
+  private _onDidChangeTreeData: vscode.EventEmitter<SummaryItem | undefined | void> = new vscode.EventEmitter<SummaryItem | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<SummaryItem | undefined | void> = this._onDidChangeTreeData.event;
 
   constructor(
 	private balenaSdk: BalenaSDK,
@@ -43,32 +43,32 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<SummaryIte
 	) { }
 
   refresh(): void {
-    this._onDidChangeTreeData.fire()
+    this._onDidChangeTreeData.fire();
   }
 
   getTreeItem(element: SummaryItem): vscode.TreeItem {
-    return element
+    return element;
   }
 
   getChildren(element?: SummaryItem): Thenable<SummaryItem[]> {
     if(!element) {
-      return Promise.resolve(this.buildSummaryItems())
+      return Promise.resolve(this.buildSummaryItems());
     } else {
-      return Promise.resolve([])
+      return Promise.resolve([]);
     }
   }
 
   private async buildSummaryItems(): Promise<SummaryItem[]> {
     return [
       ...await this.buildDeviceItems(),
-    ]
+    ];
   }
 
   private async buildDeviceItems(): Promise<Device[]> {
-    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type)).name
+    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type)).name;
     return [
       new Device(`${this.device.device_name} - ${deviceType}`, vscode.TreeItemCollapsibleState.None, this.device.uuid, this.device.is_online, this.device.api_heartbeat_state),
-    ]
+    ];
   }
 }
 
@@ -78,7 +78,7 @@ export class ClickToCopy extends vscode.TreeItem {
     public collapsibleState?: vscode.TreeItemCollapsibleState,
     public command?: vscode.Command
   ) {
-    super(label, collapsibleState)
+    super(label, collapsibleState);
   }
 }
 

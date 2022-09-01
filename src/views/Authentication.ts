@@ -1,6 +1,6 @@
-import * as vscode from 'vscode'
-import * as notifications from './Notifications'
-import { useBalenaClient, loginWithEmailPass, loginWithToken } from '../lib/balena'
+import * as vscode from 'vscode';
+import * as notifications from './Notifications';
+import { useBalenaClient, loginWithEmailPass, loginWithToken } from '@/lib/balena';
 
 enum AuthenticationMethods {
   APIKey = 'API Key',
@@ -10,82 +10,82 @@ enum AuthenticationMethods {
 export const showLoginOptions = async () => {
   const result = await vscode.window.showQuickPick(Object.values(AuthenticationMethods), {
     placeHolder: 'Choose the authentication method...'
-  })
+  });
 
   switch (result) {
     case AuthenticationMethods.APIKey:
-      showLoginWithToken()
-      break
+      showLoginWithToken();
+      break;
     case AuthenticationMethods.EmailPass:
-      showLoginWithEmailPass()
-      break
+      showLoginWithEmailPass();
+      break;
     default:
-      break
+      break;
   }
-}
+};
 
 const showLoginWithToken = async () => {
   const token = (await vscode.window.showInputBox({
     placeHolder: 'Balena API Key...',
     validateInput: text => {
-      let msg = null
+      let msg = null;
 
       if (/\s/g.test(text.trim())) {
-        msg = 'Contains whitespace characters'
+        msg = 'Contains whitespace characters';
       } else if (text.trim().length !== 32) {
-        msg = 'Must be 32 characters long'
+        msg = 'Must be 32 characters long';
       } else if (text.length === 0) {
-        msg = 'Cannot be empty'
+        msg = 'Cannot be empty';
       }
 
-      return msg
+      return msg;
     }
-  }))?.trim()
+  }))?.trim();
 
   try {
     if (token) {
-      const isLoggedIn = await loginWithToken(useBalenaClient(), token)
+      const isLoggedIn = await loginWithToken(useBalenaClient(), token);
       if (isLoggedIn) {
-        notifications.infoMsg('Successfully logged in!')
+        notifications.infoMsg('Successfully logged in!');
       }
     } else {
-      notifications.errorMsg('Token is empty')
+      notifications.errorMsg('Token is empty');
     }
   } catch (error) {
-    notifications.errorMsg(error as string)
-    await showLoginOptions()
+    notifications.errorMsg(error as string);
+    await showLoginOptions();
   }
-}
+};
 
 const showLoginWithEmailPass = async () => {
   const email = (await vscode.window.showInputBox({
     placeHolder: 'Account Email...',
     validateInput: text => {
-      let msg = null
+      let msg = null;
 
       if (/\s/g.test(text.trim())) {
-        msg = 'Contains whitespace characters!'
+        msg = 'Contains whitespace characters!';
       }
 
-      return msg
+      return msg;
     }
-  }))?.trim()
+  }))?.trim();
 
   const password = (await vscode.window.showInputBox({
     placeHolder: 'Account Password...'
-  }))?.trim()
+  }))?.trim();
 
   try {
     if (email && password) {
-      const isLoggedIn = await loginWithEmailPass(useBalenaClient(), email, password)
+      const isLoggedIn = await loginWithEmailPass(useBalenaClient(), email, password);
       if (isLoggedIn) {
-        notifications.infoMsg('Successfully logged in!')
+        notifications.infoMsg('Successfully logged in!');
       }
     } else {
-      notifications.errorMsg('Email or password is empty')
+      notifications.errorMsg('Email or password is empty');
     }
   } catch (error) {
-    notifications.errorMsg(error as string)
-    await showLoginOptions()
+    notifications.errorMsg(error as string);
+    await showLoginOptions();
   }
-}
+};

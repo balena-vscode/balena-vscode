@@ -1,1 +1,0 @@
-{"rule":"COPYRIGHT","sentence":"^\\QCopyright (c) 2022 Kaleb Pace\\E$"}

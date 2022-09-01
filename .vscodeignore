@@ -1,13 +1,14 @@
-# VS Code
-.vscode
-
-# Node
-node_modules
-out/
-src/
-test/
+.vscode/**
+.vscode-test/**
+out/**
+node_modules/**
+src/**
+.gitignore
+.yarnrc
+webpack.config.js
+vsc-extension-quickstart.md
 **/tsconfig.json
-**/.eslint.json
+**/.eslintrc.json
 **/*.map
 **/*.ts
 
@@ -16,6 +17,3 @@ direnv/
 .envrc
 flake.lock
 *.nix
-
-# Misc
-.gitignore
