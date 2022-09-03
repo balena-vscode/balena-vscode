@@ -1,11 +1,12 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ES2020",
-		// "isolatedModules": true, // https://esbuild.github.io/content-types/#isolated-modules
-		// "esModuleInterop": true, // https://esbuild.github.io/content-types/#es-module-interop
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"target": "ES2015",
+		"isolatedModules": true, // https://esbuild.github.io/content-types/#isolated-modules
+		"esModuleInterop": true, // https://esbuild.github.io/content-types/#es-module-interop
 		"lib": [
-			"ES2020",
+			"ES2015",
 			"DOM"
 		],
 		"sourceMap": true,

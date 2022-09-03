@@ -12,6 +12,7 @@
 		"Other"
 	],
 	"main": "./dist/extension.js",
+	"browser": "./dist/extension.js",
 	"activationEvents": [
 		"onView:fleetDevices",
 		"onView:deviceSummary",
@@ -150,6 +151,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.31.0",
 		"@typescript-eslint/parser": "^5.31.0",
 		"@vscode/test-electron": "^2.1.5",
+		"esbuild-loader": "^2.19.0",
 		"eslint": "^8.20.0",
 		"eslint-config-standard": "^17.0.0",
 		"eslint-plugin-import": "^2.25.2",
@@ -158,6 +160,7 @@
 		"generator-code": "^1.6.14",
 		"glob": "^8.0.3",
 		"mocha": "^10.0.0",
+		"null-loader": "^4.0.1",
 		"ts-loader": "^9.3.1",
 		"tsc-alias": "^1.7.0",
 		"typescript": "^4.7.4",

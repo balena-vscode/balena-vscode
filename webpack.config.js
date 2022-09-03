@@ -2,7 +2,10 @@
 
 'use strict';
 
-const path = require('path');
+const { resolve } = require('path');
+const { ESBuildMinifyPlugin } = require('esbuild-loader');
+const { ProvidePlugin } = require('webpack');
+
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -15,7 +18,7 @@ const extensionConfig = {
   entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
-    path: path.resolve(__dirname, 'dist'),
+    path: resolve(__dirname, 'dist'),
     filename: 'extension.js',
     libraryTarget: 'commonjs2'
   },
@@ -24,22 +27,27 @@ const extensionConfig = {
     // modules added here also need to be added in the .vscodeignore file
   },
   resolve: {
+    // mainFields: ['browser', 'module', 'main'], // look for `browser` entry point in imported node modules
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: ['.ts', '.js'],
     alias: {
-      "@": path.resolve(__dirname, 'src/')
-    }
+      "@": resolve(__dirname, 'src/')
+    },
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader'
-          }
-        ]
+        // Without this null loader, source maps, markdown, and LICENSE files throw errors for the Balena SDK module
+        test: /\.(md|map)$|LICENSE/,
+        loader: 'null-loader',
+      },
+      {
+        test: /\.(ts|js)$/,
+        loader: 'esbuild-loader',
+        options: {
+          loader: 'ts',
+          target: 'es2015'
+        }
       }
     ]
   },
@@ -47,5 +55,12 @@ const extensionConfig = {
   infrastructureLogging: {
     level: "log", // enables logging required for problem matchers
   },
+  optimization: {
+    minimizer: [
+      new ESBuildMinifyPlugin({
+        target: 'es2015'
+      })
+    ]
+  }
 };
 module.exports = [ extensionConfig ];

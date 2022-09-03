@@ -1,6 +1,6 @@
 import * as settings from '@/settings';
 
-import { BalenaSDK, getSdk, SdkOptions } from 'balena-sdk';
+import { BalenaSDK, getSdk, SdkOptions } from 'balena-sdk/index';
 
 export * from 'balena-sdk';
 export { 
