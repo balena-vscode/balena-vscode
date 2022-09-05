@@ -3,8 +3,8 @@ import { getDeviceWithServices, isLoggedIn, useBalenaClient } from './lib/balena
 import { showLoginOptions } from './views/Authentication';
 import { showSelectFleet } from './views/StatusBar';
 import * as notifications from './views/Notifications';
-import { SelectedDevice$, showSelectDeviceInput, ViewIds as DeviceInspectorViewIds } from './views/DeviceInspector';
-import { ViewIds as FleetExplorerViewIds } from './views/FleetExplorer';
+import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from './views/DeviceInspector';
+import { ViewId as FleetExplorerViewIds } from './views/FleetExplorer';
 import { Device } from './providers';
 
 export enum CommandIds {

@@ -3,7 +3,7 @@ import { getFleetById, getFleetConfigVariables, getFleetEnvVariables, useBalenaC
 import { DevicesProvider, ReleasesProvider, VariablesProvider, MetaProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
 
-export enum ViewIds {
+export enum ViewId {
     FleetExplorer = "fleetExplorer",
     Devices = "fleetDevices",
     Releases = "fleetReleases",
@@ -15,23 +15,23 @@ export const registerView = () => {
   const balena = useBalenaClient();
   SelectedFleet$.subscribe(fleet => {
     if (fleet) {
-      vscode.window.createTreeView(ViewIds.Devices, {
+      vscode.window.createTreeView(ViewId.Devices, {
         showCollapseAll: true,
         canSelectMany: true,
         treeDataProvider: new DevicesProvider(balena, fleet.slug)
       });
 
-      vscode.window.createTreeView(ViewIds.Releases, {
+      vscode.window.createTreeView(ViewId.Releases, {
         showCollapseAll: true,
         canSelectMany: true,
         treeDataProvider: new ReleasesProvider(balena, fleet.slug)
       });
 
-      vscode.window.createTreeView(ViewIds.Variables, {
+      vscode.window.createTreeView(ViewId.Variables, {
         treeDataProvider: new VariablesProvider(balena, getFleetConfigVariables, getFleetEnvVariables, fleet.slug)
       });
 
-      vscode.window.createTreeView(ViewIds.Meta, {
+      vscode.window.createTreeView(ViewId.Meta, {
         canSelectMany: true,
         treeDataProvider: new MetaProvider(balena, getFleetById, fleet.slug)
       });
