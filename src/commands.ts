@@ -2,10 +2,11 @@ import * as vscode from 'vscode';
 import { getDeviceWithServices, isLoggedIn, Release, useBalenaClient } from '@/lib/balena';
 import { showLoginOptions } from '@/views/Authentication';
 import { showSelectFleet } from '@/views/StatusBar';
-import * as notifications from '@/views/Notifications';
+import { showWarnMsg, showInfoMsg } from '@/views/Notifications';
 import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from '@/views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
-import { DeviceItem, ReleaseItem } from '@/providers';
+import { DeviceItem, DeviceStatus, ReleaseItem } from '@/providers';
+import { createBalenaSSHTerminal } from './views/Terminal';
 
 export enum CommandId {
   LoginToBalenaCloud = 'balena-vscode.loginToBalenaCloud',
@@ -32,11 +33,12 @@ export const registerCommands = (context: vscode.ExtensionContext) => {
 export const loginToBalenaCloud = async () => {
   const balena = useBalenaClient();
   if (await isLoggedIn(balena)) {
-    notifications.infoMsg('Successfully Logged In!');
+    showInfoMsg('Successfully Logged In!');
   } else {
     await showLoginOptions();
   }
 };
+
 export const selectActiveFleet = async () => {
   await showSelectFleet();
   focusFleetExplorer();
@@ -44,7 +46,7 @@ export const selectActiveFleet = async () => {
 
 export const inspectDevice = async (device?: DeviceItem) => {
   const balena = useBalenaClient();
-  if(device) {
+  if (device) {
     const deviceWithServices = await getDeviceWithServices(balena, device.uuid);
     SelectedDevice$.next(deviceWithServices);
     focusDeviceInspector();
@@ -52,9 +54,9 @@ export const inspectDevice = async (device?: DeviceItem) => {
   else {
     const selectedDevice = await showSelectDeviceInput();
     if (selectedDevice) {
-        const device = await getDeviceWithServices(balena, selectedDevice.uuid);
-        SelectedDevice$.next(device);
-        focusDeviceInspector();
+      const device = await getDeviceWithServices(balena, selectedDevice.uuid);
+      SelectedDevice$.next(device);
+      focusDeviceInspector();
     }
   }
 };
@@ -63,7 +65,7 @@ export const openSSHConnectionInTerminal = async (device?: DeviceItem) => {
   let deviceName: string | undefined;
   let deviceUUID: string | undefined;
 
-  if(device) {
+  if (device) {
     deviceName = device.label;
     deviceUUID = device.id;
   } else {
@@ -71,18 +73,14 @@ export const openSSHConnectionInTerminal = async (device?: DeviceItem) => {
     deviceName = selectedDevice?.device_name;
     deviceUUID = selectedDevice?.uuid;
   }
-  
-  vscode.window.createTerminal({
-    name: `${deviceName} [Balena Device]`,
-    shellPath: 'balena',
-    shellArgs: ['ssh', deviceUUID as string],
-  }).show();
 
-  vscode.window.onDidCloseTerminal(terminal => {
-    if(terminal.exitStatus?.code === 1) {
-      notifications.infoMsg(`Terminal exited: ${deviceName} is likely offline`);
-    }
-  });
+  if (device?.status === DeviceStatus.Offline || device?.status === DeviceStatus.OnlineHeartbeatOnly) {
+    showWarnMsg("Device is currently offline or has limited connectivity. Cannot create terminal session.");
+  } else if (!deviceName || !deviceUUID) {
+    showWarnMsg('Device name or uuid is undefined. Cannot create terminal session.');
+  } else {
+    createBalenaSSHTerminal(deviceName, deviceUUID);
+  }
 };
 
 export const focusDeviceInspector = () => vscode.commands.executeCommand(`${DeviceInspectorViewIds.Summary}.focus`);
@@ -95,6 +93,6 @@ export const copyDeviceUUIDToClipboard = async (device: DeviceItem) => copyToCli
 export const copyReleaseCommitToClipboard = async (release: ReleaseItem) => copyToClipboard(release.label);
 export const copyReleaseRevisionToClipboard = async (release: ReleaseItem) => copyToClipboard(release.description as string);
 const copyToClipboard = async (value: string) => {
-  notifications.infoMsg(`Clipboard copied: ${value}`);
+  showInfoMsg(`Clipboard copied: ${value}`);
   await vscode.env.clipboard.writeText(value);
 };

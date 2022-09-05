@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as notifications from './Notifications';
+import {showInfoMsg, showErrMsg} from './Notifications';
 import { useBalenaClient, loginWithEmailPass, loginWithToken } from '@/lib/balena';
 
 enum AuthenticationMethods {
@@ -46,13 +46,13 @@ const showLoginWithToken = async () => {
     if (token) {
       const isLoggedIn = await loginWithToken(useBalenaClient(), token);
       if (isLoggedIn) {
-        notifications.infoMsg('Successfully logged in!');
+        showInfoMsg('Successfully logged in!');
       }
     } else {
-      notifications.errorMsg('Token is empty');
+      showErrMsg('Token is empty');
     }
   } catch (error) {
-    notifications.errorMsg(error as string);
+    showErrMsg(error as string);
     await showLoginOptions();
   }
 };
@@ -79,13 +79,13 @@ const showLoginWithEmailPass = async () => {
     if (email && password) {
       const isLoggedIn = await loginWithEmailPass(useBalenaClient(), email, password);
       if (isLoggedIn) {
-        notifications.infoMsg('Successfully logged in!');
+        showInfoMsg('Successfully logged in!');
       }
     } else {
-      notifications.errorMsg('Email or password is empty');
+      showErrMsg('Email or password is empty');
     }
   } catch (error) {
-    notifications.errorMsg(error as string);
+    showErrMsg(error as string);
     await showLoginOptions();
   }
 };
