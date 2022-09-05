@@ -6,7 +6,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run Extension",
+			"name": "Native: Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
@@ -14,12 +14,12 @@
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
 			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js"
+				"${workspaceFolder}/dist/node/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}"
 		},
 		{
-			"name": "Extension Tests",
+			"name": "Native: Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
@@ -29,9 +29,24 @@
 			],
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js",
-				"${workspaceFolder}/dist/**/*.js"
+				"${workspaceFolder}/dist/node/**/*.js"
 			],
-			"preLaunchTask": "tasks: compile-tests"
+			"preLaunchTask": "npm: compile-tests"
+		},
+		{
+			"name": "Web: Run Extension",
+			"type": "extensionHost",
+			"debugWebWorkerHost": true,
+			"request": "launch",
+			"args": [
+				"--disable-extensions",
+				"--extensionDevelopmentKind=web",
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/web/**/*.js"
+			],
+			"preLaunchTask": "npm: compile-web"
 		}
 	]
 }

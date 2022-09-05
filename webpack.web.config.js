@@ -4,6 +4,8 @@
 
 const { resolve } = require('path');
 const { ESBuildMinifyPlugin } = require('esbuild-loader');
+const { ProvidePlugin } = require('webpack');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 
 //@ts-check
@@ -11,21 +13,26 @@ const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
 /** @type WebpackConfig */
 const extensionConfig = {
-  target: 'node', 
-	mode: 'none',
-  entry: './src/extension.ts',
+  target: 'webworker', 
+	mode: 'none', 
+  entry: './src/extension.ts', 
   output: {
-    path: resolve(__dirname, 'dist', 'node'),
+    path: resolve(__dirname, 'dist', 'web'),
     filename: 'extension.js',
     libraryTarget: 'commonjs2'
   },
   externals: {
-    vscode: 'commonjs vscode'
+    vscode: 'commonjs vscode',
   },
   resolve: {
+    mainFields: ['browser', 'module', 'main'],
     extensions: ['.ts', '.js'],
     alias: {
       "@": resolve(__dirname, 'src/')
+    },
+    fallback: {
+      fs: false,
+      path: false,
     }
   },
   module: {
@@ -41,11 +48,18 @@ const extensionConfig = {
         loader: 'esbuild-loader',
         options: {
           loader: 'ts',
-          target: 'esnext'
+          target: 'es2015'
         }
       }
     ]
   },
+  plugins: [
+    new NodePolyfillPlugin(),
+    new ProvidePlugin({
+      process: 'process/browser', // provide a shim for the global `process` variable
+      window: 'null-loader' // shim the window object in vscode browser mode so Balena SDK detects its not in a nodejs env
+    }),
+  ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
     level: "log",
@@ -53,7 +67,9 @@ const extensionConfig = {
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({
-        target: 'esnext'
+        target: 'es2015',
+        treeShaking: true,
+        minify: true
       })
     ]
   }

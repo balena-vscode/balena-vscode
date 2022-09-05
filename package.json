@@ -1,8 +1,8 @@
 {
 	"name": "balena-vscode",
 	"author": "Kaleb Pace (development.6v1i9@slmail.me)",
-	"publisher": "kalebpace",
-	"displayName": "balena-vscode",
+	"publisher": "Kaleb Pace",
+	"displayName": "Balena (Unofficial)",
 	"description": "Unofficial VS Code extension for integration with Balena",
 	"version": "0.0.1",
 	"engines": {
@@ -11,8 +11,14 @@
 	"categories": [
 		"Other"
 	],
-	"main": "./dist/extension.js",
-	"browser": "./dist/extension.js",
+	"main": "./dist/node/extension.js",
+	"browser": "./dist/web/extension.js",
+	"icon": "assets/balena.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kalebpace/balena-vscode"
+	},
+	"homepage": "https://github.com/kalebpace/balena-vscode/blob/main/README.md",
 	"activationEvents": [
 		"onView:fleetDevices",
 		"onView:deviceSummary",
@@ -123,7 +129,7 @@
 				},
 				{
 					"command": "balena-vscode.openSSHConnectionInTerminal",
-					"when": "view == fleetDevices && viewItem == device"
+					"when": "!isWeb && view == fleetDevices && viewItem == device"
 				}
 			]
 		}
@@ -133,6 +139,10 @@
 		"compile": "webpack",
 		"watch": "webpack --watch",
 		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-web": "webpack --config webpack.web.config.js",
+		"watch-web": "webpack --watch --config webpack.web.config.js",
+		"serve-web": "serve --cors -l 5000",
+		"package-web": "webpack --mode production --devtool hidden-source-map --config webpack.web.config.js",
 		"compile-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
 		"watch-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json -w",
 		"pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
@@ -160,7 +170,10 @@
 		"generator-code": "^1.6.14",
 		"glob": "^8.0.3",
 		"mocha": "^10.0.0",
+		"node-polyfill-webpack-plugin": "^2.0.1",
 		"null-loader": "^4.0.1",
+		"process": "^0.11.10",
+		"serve": "^14.0.1",
 		"ts-loader": "^9.3.1",
 		"tsc-alias": "^1.7.0",
 		"typescript": "^4.7.4",

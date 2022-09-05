@@ -48,11 +48,15 @@
 			"group": "build"
 		},
 		{
-			"label": "tasks: compile-tests",
-			"dependsOn": [
-				"npm: compile-tests"
-			],
-			"problemMatcher": []
+			"type": "npm",
+			"script": "compile-web",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never",
+				"group": "watchers"
+			},
+			"group": "build"
 		}
 	]
 }
