@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags } from '@/lib/balena';
+import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, Release } from '@/lib/balena';
 import { Meta } from './meta';
 import {
   ReleaseCanceledIcon,
@@ -37,7 +37,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
         case "tags":
           return Promise.resolve(this.getTags());
         default:
-          return Promise.resolve(this.initializeReleaseDetails(element.id));
+          return Promise.resolve(this.initializeReleaseDetails(element.uuid));
       }
     } else {
       return Promise.resolve(this.getAllReleases());
@@ -47,7 +47,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
   private async getAllReleases(): Promise<ReleaseItem[]> {
     const releases = await getFleetReleases(this.balenaSdk, this.fleetId);
     return releases.map((r: FleetRelease) =>
-      new ReleaseItem(`${shortenUUID(r.commit)}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date, r.semver, r.revision));
+      new ReleaseItem(`${shortenUUID(r.commit)}`, vscode.TreeItemCollapsibleState.Collapsed, r));
   }
 
   private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
@@ -89,44 +89,54 @@ export enum ReleaseStatus {
   Unknown
 }
 export class ReleaseItem extends vscode.TreeItem {
-  public status = ReleaseStatus.Unknown;
-
   constructor(
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly id: string,
-    private readonly buildStatus: string | null,
-    private readonly isFinalized: boolean,
-    private readonly isFinalizedAtDate: string | null,
-    private readonly semvar: string,
-    private readonly revision: number | null
+    private readonly release: Release
   ) {
     super(label, collapsibleState);
-    this.description = `${this.semvar}+rev${this.revision}`;
-    this.setBuildStatus();
+    this.description = `${this.release.semver}+rev${this.release.revision}`;
+    this.setup();
   }
 
-  private setBuildStatus() {
-    if (this.buildStatus === "success" && this.isFinalized) {
-      this.status = ReleaseStatus.Finalized;
-      this.tooltip = `Finalized at ${this.isFinalizedAtDate}`;
-      this.iconPath = ReleaseFinalizedIcon;
-    } else if (this.buildStatus === "success") {
-      this.status = ReleaseStatus.Success;
-      this.tooltip = "Successfully Built";
-      this.iconPath = ReleaseValidIcon;
-    } else if (this.buildStatus === "cancelled") {
-      this.status = ReleaseStatus.Canceled;
-      this.tooltip = "Canceled";
-      this.iconPath = ReleaseCanceledIcon;
-    } else if (this.buildStatus === "failed") {
-      this.status = ReleaseStatus.Failed;
-      this.tooltip = "Failed";
-      this.iconPath = ReleaseFailedIcon;
+  public get uuid() { return this.release.commit; }
+  public get status() {
+    const status = this.release.status;
+    if(status === "success" && this.release.is_final) {
+      return ReleaseStatus.Finalized;
+    } else if (status === "success") {
+      return ReleaseStatus.Success;
+    } else if (status === "cancelled") {
+      return ReleaseStatus.Canceled;
+    } else if (status === "failed") {
+      return ReleaseStatus.Failed;
     } else {
-      this.status = ReleaseStatus.Unknown;
-      this.tooltip = "Unknown";
-      this.iconPath = UnknownIcon;
+      return ReleaseStatus.Unknown;
+    }
+  }
+
+  private setup() {
+    switch(this.status) {
+      case ReleaseStatus.Finalized:
+        this.tooltip = `Finalized at ${this.release.is_finalized_at__date}`;
+        this.iconPath = ReleaseFinalizedIcon;
+        break;
+      case ReleaseStatus.Success:
+        this.tooltip = "Successfully Built";
+        this.iconPath = ReleaseValidIcon;
+        break;
+      case ReleaseStatus.Canceled:
+        this.tooltip = "Canceled";
+        this.iconPath = ReleaseCanceledIcon;
+        break;
+      case ReleaseStatus.Failed:
+        this.tooltip = "Failed";
+        this.iconPath = ReleaseFailedIcon;
+        break;
+      case ReleaseStatus.Unknown:
+      default:
+        this.tooltip = "Unknown";
+        this.iconPath = UnknownIcon;
     }
   }
 

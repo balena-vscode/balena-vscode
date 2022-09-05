@@ -133,8 +133,8 @@
 				"title": "Copy Commit Id"
 			},
 			{
-				"command": "balena-vscode.copyReleaseRevisionToClipboard",
-				"title": "Copy Revision"
+				"command": "balena-vscode.copyReleaseVersionToClipboard",
+				"title": "Copy Version"
 			}
 		],
 		"menus": {
@@ -152,7 +152,7 @@
 					"when": "false"
 				},
 				{
-					"command": "balena-vscode.copyReleaseRevisionToClipboard",
+					"command": "balena-vscode.copyReleaseVersionToClipboard",
 					"when": "false"
 				}
 			],
@@ -173,7 +173,7 @@
 					"group": "cross-platform"
 				},
 				{
-					"command": "balena-vscode.copyReleaseRevisionToClipboard",
+					"command": "balena-vscode.copyReleaseVersionToClipboard",
 					"when": "viewItem == release",
 					"group": "cross-platform"
 				},

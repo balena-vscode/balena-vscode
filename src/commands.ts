@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { getDeviceWithServices, isLoggedIn, Release, useBalenaClient } from './lib/balena';
-import { showLoginOptions } from './views/Authentication';
-import { showSelectFleet } from './views/StatusBar';
-import * as notifications from './views/Notifications';
-import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from './views/DeviceInspector';
-import { ViewId as FleetExplorerViewIds } from './views/FleetExplorer';
-import { Device, ReleaseItem } from './providers';
+import { getDeviceWithServices, isLoggedIn, Release, useBalenaClient } from '@/lib/balena';
+import { showLoginOptions } from '@/views/Authentication';
+import { showSelectFleet } from '@/views/StatusBar';
+import * as notifications from '@/views/Notifications';
+import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from '@/views/DeviceInspector';
+import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
+import { DeviceItem, ReleaseItem } from '@/providers';
 
 export enum CommandId {
   LoginToBalenaCloud = 'balena-vscode.loginToBalenaCloud',
@@ -15,7 +15,7 @@ export enum CommandId {
   CopyDeviceNameToClipboard = 'balena-vscode.copyDeviceNameToClipboard',
   CopyDeviceUUIDToClipboard = 'balena-vscode.copyDeviceUUIDToClipboard',
   CopyReleaseCommitToClipboard = 'balena-vscode.copyReleaseCommitToClipboard',
-  CopyReleaseRevisionToClipboard = 'balena-vscode.copyReleaseRevisionToClipboard',
+  CopyReleaseVersionToClipboard = 'balena-vscode.copyReleaseVersionToClipboard',
 }
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
@@ -26,7 +26,7 @@ export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyDeviceNameToClipboard, copyDeviceNameToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyDeviceUUIDToClipboard, copyDeviceUUIDToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyReleaseCommitToClipboard, copyReleaseCommitToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyReleaseRevisionToClipboard, copyReleaseRevisionToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyReleaseVersionToClipboard, copyReleaseRevisionToClipboard));
 };
 
 export const loginToBalenaCloud = async () => {
@@ -42,10 +42,10 @@ export const selectActiveFleet = async () => {
   focusFleetExplorer();
 };
 
-export const inspectDevice = async (device?: Device) => {
+export const inspectDevice = async (device?: DeviceItem) => {
   const balena = useBalenaClient();
   if(device) {
-    const deviceWithServices = await getDeviceWithServices(balena, device.id);
+    const deviceWithServices = await getDeviceWithServices(balena, device.uuid);
     SelectedDevice$.next(deviceWithServices);
     focusDeviceInspector();
   }
@@ -59,7 +59,7 @@ export const inspectDevice = async (device?: Device) => {
   }
 };
 
-export const openSSHConnectionInTerminal = async (device?: Device) => {
+export const openSSHConnectionInTerminal = async (device?: DeviceItem) => {
   let deviceName: string | undefined;
   let deviceUUID: string | undefined;
 
@@ -90,8 +90,8 @@ export const focusFleetExplorer = () => vscode.commands.executeCommand(`${FleetE
 
 export const copyItemLabelToClipboard = async (item: vscode.TreeItem) => copyToClipboard(item.label as string);
 export const copyItemDescriptionToClipboard = async (item: vscode.TreeItem) => copyToClipboard(item.description as string);
-export const copyDeviceNameToClipboard = async (device: Device) => copyToClipboard(device.label);
-export const copyDeviceUUIDToClipboard = async (device: Device) => copyToClipboard(device.id);
+export const copyDeviceNameToClipboard = async (device: DeviceItem) => copyToClipboard(device.name);
+export const copyDeviceUUIDToClipboard = async (device: DeviceItem) => copyToClipboard(device.uuid);
 export const copyReleaseCommitToClipboard = async (release: ReleaseItem) => copyToClipboard(release.label);
 export const copyReleaseRevisionToClipboard = async (release: ReleaseItem) => copyToClipboard(release.description as string);
 const copyToClipboard = async (value: string) => {

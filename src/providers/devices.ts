@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Device as FleetDevice, getDeviceById, getDevices } from '@/lib/balena';
+import { BalenaSDK, Device, Device as FleetDevice, getDeviceById, getDevices } from '@/lib/balena';
 import { Meta } from './meta';
 import {
   DeviceOnlineIcon, 
@@ -9,9 +9,9 @@ import {
 import { shortenUUID } from '@/utils';
 
 
-export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
-  private _onDidChangeTreeData: vscode.EventEmitter<Device | Meta | undefined | void> = new vscode.EventEmitter<Device | Meta | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<Device | Meta | undefined | void> = this._onDidChangeTreeData.event;
+export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | Meta> {
+  private _onDidChangeTreeData: vscode.EventEmitter<DeviceItem | Meta | undefined | void> = new vscode.EventEmitter<DeviceItem | Meta | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<DeviceItem | Meta | undefined | void> = this._onDidChangeTreeData.event;
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string) { }
 
@@ -19,22 +19,22 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
     this._onDidChangeTreeData.fire();
   }
 
-  getTreeItem(element: Device): vscode.TreeItem {
+  getTreeItem(element: DeviceItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: Device): Thenable<Device[] | Meta[]> {
+  getChildren(element?: DeviceItem): Thenable<DeviceItem[] | Meta[]> {
     if (element) {
-      return Promise.resolve(this.getDeviceMeta(element.id));
+      return Promise.resolve(this.getDeviceMeta(element.uuid));
     } else {
       return Promise.resolve(this.getAllDevices());
     }
   }
 
-  private async getAllDevices(): Promise<Device[]> {
+  private async getAllDevices(): Promise<DeviceItem[]> {
     const devices = await getDevices(this.balenaSdk, this.fleetId);
     return devices.map((d: FleetDevice) =>
-      new Device(`${d.device_name}`, vscode.TreeItemCollapsibleState.Collapsed, d.uuid, d.is_online, d.api_heartbeat_state)
+      new DeviceItem(`${d.device_name}`, vscode.TreeItemCollapsibleState.Collapsed, d)
     )
       // sort by online status then by label
       .sort((a, b) => (a.status - b.status) + a.label.localeCompare(b.label));
@@ -49,40 +49,50 @@ export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
   }
 }
 
-enum DeviceStatus {
-  Online,
+export enum DeviceStatus {
+  Offline,
   OnlineHeartbeatOnly,
-  Offline
+  Online
 }
-export class Device extends vscode.TreeItem {
-  public status = DeviceStatus.Offline;
-
+export class DeviceItem extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly id: string,
-    private readonly isOnline: boolean,
-    private readonly apiStatus: string,
+    private readonly device: Device
   ) {
     super(label, collapsibleState);
-    this.description = shortenUUID(this.id);
-    this.setDeviceStatus();
+    this.description = shortenUUID(this.uuid);
+    this.setup();
   }
 
-
-  private setDeviceStatus() {
-    if (this.isOnline) {
-      this.status = DeviceStatus.Online;
-      this.tooltip = this.apiStatus[0].toUpperCase().concat(this.apiStatus.slice(1));
-      this.iconPath = DeviceOnlineIcon;
-    } else if (!this.isOnline && this.apiStatus === "online") {
-      this.status = DeviceStatus.OnlineHeartbeatOnly;
-      this.tooltip = "Online (Heartbeat Only)";
-      this.iconPath = DeviceHeartbeatOnlyIcon;
+  public get name() { return this.device.device_name; }
+  public get uuid() { return this.device.uuid; }
+  public get status() {
+    const status = this.device.is_online;
+    const statusMsg = this.device.api_heartbeat_state;
+    if(status) {
+      return DeviceStatus.Online;
+    } else if(!status && statusMsg === "online") {
+      return DeviceStatus.OnlineHeartbeatOnly;
     } else {
-      this.status = DeviceStatus.Offline;
-      this.tooltip = this.apiStatus[0].toUpperCase().concat(this.apiStatus.slice(1));
-      this.iconPath = DeviceOfflineIcon;
+      return DeviceStatus.Offline;
+    }
+  }
+
+  private setup() {
+    switch(this.status) {
+      case DeviceStatus.Online:
+        this.tooltip = "Online";
+        this.iconPath = DeviceOnlineIcon;
+        break;
+      case DeviceStatus.OnlineHeartbeatOnly:
+        this.tooltip = `Online (Heartbeat Only) since ${this.device.last_vpn_event}`;
+        this.iconPath = DeviceHeartbeatOnlyIcon;
+        break;
+      case DeviceStatus.Offline:
+      default:
+        this.tooltip =  `Offline since ${this.device.last_connectivity_event}`;
+        this.iconPath = DeviceOfflineIcon;
     }
   }
 
