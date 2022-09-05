@@ -6,6 +6,7 @@ import {
   DeviceHeartbeatOnlyIcon, 
   DeviceOfflineIcon,
 } from '@/icons';
+import { shortenUUID } from '@/utils';
 
 
 export class DevicesProvider implements vscode.TreeDataProvider<Device | Meta> {
@@ -64,6 +65,7 @@ export class Device extends vscode.TreeItem {
     private readonly apiStatus: string,
   ) {
     super(label, collapsibleState);
+    this.description = shortenUUID(this.id);
     this.setDeviceStatus();
   }
 

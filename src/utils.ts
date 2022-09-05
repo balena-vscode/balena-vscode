@@ -1,0 +1,1 @@
+export const shortenUUID = (uuid: string) => uuid.slice(0,7);

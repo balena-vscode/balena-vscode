@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '@/lib/balena';
 import { MetaProvider, ServicesProvider, VariablesProvider, DeviceSummaryProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
+import { shortenUUID } from '@/utils';
 
 export enum ViewId {
     DeviceInspector = "deviceInspector",
@@ -51,7 +52,7 @@ export const showSelectDeviceInput = async () => {
             public uuid: string,
         ) {
             this.label = device_name;
-            this.description = uuid.slice(0,7);
+            this.description = shortenUUID(uuid);
         }
     }
 

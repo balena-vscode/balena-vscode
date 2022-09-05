@@ -10,6 +10,7 @@ import {
   TagIcon,
   TextIcon,
 } from '@/icons';
+import { shortenUUID } from '@/utils';
 
 
 export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | vscode.TreeItem> {
@@ -46,7 +47,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
   private async getAllReleases(): Promise<ReleaseItem[]> {
     const releases = await getFleetReleases(this.balenaSdk, this.fleetId);
     return releases.map((r: FleetRelease) =>
-      new ReleaseItem(`${r.commit.substring(0, 6)} | ${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date));
+      new ReleaseItem(`${shortenUUID(r.commit)}`, vscode.TreeItemCollapsibleState.Collapsed, r.commit, r.status, r.is_final, r.is_finalized_at__date, r.semver, r.revision));
   }
 
   private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
@@ -97,8 +98,11 @@ export class ReleaseItem extends vscode.TreeItem {
     private readonly buildStatus: string | null,
     private readonly isFinalized: boolean,
     private readonly isFinalizedAtDate: string | null,
+    private readonly semvar: string,
+    private readonly revision: number | null
   ) {
     super(label, collapsibleState);
+    this.description = `${this.semvar}+rev${this.revision}`;
     this.setBuildStatus();
   }
 

@@ -1,24 +1,32 @@
 import * as vscode from 'vscode';
-import { getDeviceWithServices, isLoggedIn, useBalenaClient } from './lib/balena';
+import { getDeviceWithServices, isLoggedIn, Release, useBalenaClient } from './lib/balena';
 import { showLoginOptions } from './views/Authentication';
 import { showSelectFleet } from './views/StatusBar';
 import * as notifications from './views/Notifications';
 import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from './views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from './views/FleetExplorer';
-import { Device } from './providers';
+import { Device, ReleaseItem } from './providers';
 
-export enum CommandIds {
+export enum CommandId {
   LoginToBalenaCloud = 'balena-vscode.loginToBalenaCloud',
   SelectActiveFleet = 'balena-vscode.selectActiveFleet',
   InspectDevice = 'balena-vscode.inspectDevice',
-  OpenSSHConnectionInTerminal = 'balena-vscode.openSSHConnectionInTerminal'
+  OpenSSHConnectionInTerminal = 'balena-vscode.openSSHConnectionInTerminal',
+  CopyDeviceNameToClipboard = 'balena-vscode.copyDeviceNameToClipboard',
+  CopyDeviceUUIDToClipboard = 'balena-vscode.copyDeviceUUIDToClipboard',
+  CopyReleaseCommitToClipboard = 'balena-vscode.copyReleaseCommitToClipboard',
+  CopyReleaseRevisionToClipboard = 'balena-vscode.copyReleaseRevisionToClipboard',
 }
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
-  context.subscriptions.push(vscode.commands.registerCommand(CommandIds.LoginToBalenaCloud, loginToBalenaCloud));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandIds.SelectActiveFleet, selectActiveFleet));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandIds.InspectDevice, inspectDevice));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandIds.OpenSSHConnectionInTerminal, openSSHConnectionInTerminal));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.LoginToBalenaCloud, loginToBalenaCloud));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.SelectActiveFleet, selectActiveFleet));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.InspectDevice, inspectDevice));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenSSHConnectionInTerminal, openSSHConnectionInTerminal));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyDeviceNameToClipboard, copyDeviceNameToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyDeviceUUIDToClipboard, copyDeviceUUIDToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyReleaseCommitToClipboard, copyReleaseCommitToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyReleaseRevisionToClipboard, copyReleaseRevisionToClipboard));
 };
 
 export const loginToBalenaCloud = async () => {
@@ -66,8 +74,8 @@ export const openSSHConnectionInTerminal = async (device?: Device) => {
   
   vscode.window.createTerminal({
     name: `${deviceName} [Balena Device]`,
-    shellPath: '/usr/bin/zsh',
-    shellArgs: ['-c', `balena ssh ${deviceUUID}`],
+    shellPath: 'balena',
+    shellArgs: ['ssh', deviceUUID as string],
   }).show();
 
   vscode.window.onDidCloseTerminal(terminal => {
@@ -79,3 +87,14 @@ export const openSSHConnectionInTerminal = async (device?: Device) => {
 
 export const focusDeviceInspector = () => vscode.commands.executeCommand(`${DeviceInspectorViewIds.Summary}.focus`);
 export const focusFleetExplorer = () => vscode.commands.executeCommand(`${FleetExplorerViewIds.Devices}.focus`);
+
+export const copyItemLabelToClipboard = async (item: vscode.TreeItem) => copyToClipboard(item.label as string);
+export const copyItemDescriptionToClipboard = async (item: vscode.TreeItem) => copyToClipboard(item.description as string);
+export const copyDeviceNameToClipboard = async (device: Device) => copyToClipboard(device.label);
+export const copyDeviceUUIDToClipboard = async (device: Device) => copyToClipboard(device.id);
+export const copyReleaseCommitToClipboard = async (release: ReleaseItem) => copyToClipboard(release.label);
+export const copyReleaseRevisionToClipboard = async (release: ReleaseItem) => copyToClipboard(release.description as string);
+const copyToClipboard = async (value: string) => {
+  notifications.infoMsg(`Clipboard copied: ${value}`);
+  await vscode.env.clipboard.writeText(value);
+};

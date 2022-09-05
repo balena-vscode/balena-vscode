@@ -119,17 +119,73 @@
 					"dark": "$(terminal)",
 					"light": "$(terminal)"
 				}
+			},
+			{
+				"command": "balena-vscode.copyDeviceNameToClipboard",
+				"title": "Copy Name"
+			},
+			{
+				"command": "balena-vscode.copyDeviceUUIDToClipboard",
+				"title": "Copy UUID"
+			},
+			{
+				"command": "balena-vscode.copyReleaseCommitToClipboard",
+				"title": "Copy Commit Id"
+			},
+			{
+				"command": "balena-vscode.copyReleaseRevisionToClipboard",
+				"title": "Copy Revision"
 			}
 		],
 		"menus": {
+			"commandPalette": [
+				{
+					"command": "balena-vscode.copyDeviceNameToClipboard",
+					"when": "false"
+				},
+				{
+					"command": "balena-vscode.copyDeviceUUIDToClipboard",
+					"when": "false"
+				},
+				{
+					"command": "balena-vscode.copyReleaseCommitToClipboard",
+					"when": "false"
+				},
+				{
+					"command": "balena-vscode.copyReleaseRevisionToClipboard",
+					"when": "false"
+				}
+			],
 			"view/item/context": [
 				{
+					"command": "balena-vscode.copyDeviceNameToClipboard",
+					"when": "viewItem == device",
+					"group": "cross-platform"
+				},
+				{
+					"command": "balena-vscode.copyDeviceUUIDToClipboard",
+					"when": "viewItem == device",
+					"group": "cross-platform"
+				},
+				{
+					"command": "balena-vscode.copyReleaseCommitToClipboard",
+					"when": "viewItem == release",
+					"group": "cross-platform"
+				},
+				{
+					"command": "balena-vscode.copyReleaseRevisionToClipboard",
+					"when": "viewItem == release",
+					"group": "cross-platform"
+				},
+				{
 					"command": "balena-vscode.inspectDevice",
-					"when": "view == fleetDevices && viewItem == device"
+					"when": "view == fleetDevices && viewItem == device",
+					"group": "cross-platform"
 				},
 				{
 					"command": "balena-vscode.openSSHConnectionInTerminal",
-					"when": "!isWeb && view == fleetDevices && viewItem == device"
+					"when": "!isWeb && view == fleetDevices && viewItem == device",
+					"group": "native"
 				}
 			]
 		}
