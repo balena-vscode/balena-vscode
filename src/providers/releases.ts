@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, Release } from '@/lib/balena';
-import { Meta } from './meta';
 import {
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
@@ -13,9 +12,9 @@ import {
 import { shortenUUID } from '@/utils';
 
 
-export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | vscode.TreeItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<ReleaseItem | Meta | undefined | void> = new vscode.EventEmitter<ReleaseItem | Meta | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<ReleaseItem | Meta | undefined | void> = this._onDidChangeTreeData.event;
+export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
   private selectedReleaseDetails: ReleaseWithImageDetails | undefined;
 
@@ -31,7 +30,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
 
   getChildren(element?: ReleaseItem): Thenable<ReleaseItem[] | vscode.TreeItem[]> {
     if (element) {
-      switch(element.label) {
+      switch (element.label) {
         case "images":
           return Promise.resolve(this.getImages());
         case "tags":
@@ -47,7 +46,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
   private async getAllReleases(): Promise<ReleaseItem[]> {
     const releases = await getFleetReleases(this.balenaSdk, this.fleetId);
     return releases.map((r: FleetRelease) =>
-      new ReleaseItem(`${shortenUUID(r.commit)}`, vscode.TreeItemCollapsibleState.Collapsed, r));
+      new ReleaseItem(`${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r));
   }
 
   private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
@@ -59,9 +58,9 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
   }
 
   private async getImages(): Promise<ImageItem[]> {
-    if(this.selectedReleaseDetails) {
+    if (this.selectedReleaseDetails) {
       const items = [];
-      for(const i of this.selectedReleaseDetails.images) {
+      for (const i of this.selectedReleaseDetails.images) {
         const image = await getFleetReleaseImage(this.balenaSdk, i.id);
         items.push(new ImageItem(image));
       }
@@ -72,7 +71,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<ReleaseItem | v
   }
 
   private async getTags(): Promise<TagItem[]> {
-    if(this.selectedReleaseDetails) {
+    if (this.selectedReleaseDetails) {
       const tags = await getFleetReleaseTags(this.balenaSdk, this.selectedReleaseDetails.id);
       return tags.map(t => new TagItem(t));
     } else {
@@ -95,14 +94,15 @@ export class ReleaseItem extends vscode.TreeItem {
     private readonly release: Release
   ) {
     super(label, collapsibleState);
-    this.description = `${this.release.semver}+rev${this.release.revision}`;
+    this.description = shortenUUID(this.release.commit);
     this.setup();
   }
 
+  public get name() { return this.label; };
   public get uuid() { return this.release.commit; }
   public get status() {
     const status = this.release.status;
-    if(status === "success" && this.release.is_final) {
+    if (status === "success" && this.release.is_final) {
       return ReleaseStatus.Finalized;
     } else if (status === "success") {
       return ReleaseStatus.Success;
@@ -116,7 +116,7 @@ export class ReleaseItem extends vscode.TreeItem {
   }
 
   private setup() {
-    switch(this.status) {
+    switch (this.status) {
       case ReleaseStatus.Finalized:
         this.tooltip = `Finalized at ${this.release.is_finalized_at__date}`;
         this.iconPath = ReleaseFinalizedIcon;
@@ -162,7 +162,7 @@ export class TagItem extends vscode.TreeItem {
     this.command = {
       command: 'editor.action.clipboardCopyAction',
       title: '',
-      arguments: [tag.value] 
+      arguments: [tag.value]
     };
   }
 }

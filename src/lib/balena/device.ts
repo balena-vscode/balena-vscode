@@ -9,7 +9,6 @@ export const getDeviceType = async (balenaSdk: BalenaSDK, isOfDeviceType: Naviga
     // Get the device type id from private members
     const deviceTypeId = Object.values(isOfDeviceType)[0];
     return await balenaSdk.models.deviceType.get(deviceTypeId);
-
 };
 
 export const listDeviceIds = async (balenaSdk: BalenaSDK, fleetId: string) => await balenaSdk.models.device.getAllByApplication(fleetId, {$select: ["device_name", "uuid"]});

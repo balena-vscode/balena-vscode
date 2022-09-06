@@ -121,71 +121,79 @@
 				}
 			},
 			{
-				"command": "balena-vscode.copyDeviceNameToClipboard",
+				"command": "balena-vscode.copyItemToClipboard",
+				"title": "Copy Item"
+			},
+			{
+				"command": "balena-vscode.copyItemKeyToClipboard",
 				"title": "Copy Name"
 			},
 			{
-				"command": "balena-vscode.copyDeviceUUIDToClipboard",
+				"command": "balena-vscode.copyItemValueToClipboard",
+				"title": "Copy Value"
+			},
+			{
+				"command": "balena-vscode.copyNameToClipboard",
+				"title": "Copy Name"
+			},
+			{
+				"command": "balena-vscode.copyUUIDToClipboard",
 				"title": "Copy UUID"
-			},
-			{
-				"command": "balena-vscode.copyReleaseCommitToClipboard",
-				"title": "Copy Commit Id"
-			},
-			{
-				"command": "balena-vscode.copyReleaseVersionToClipboard",
-				"title": "Copy Version"
 			}
 		],
 		"menus": {
 			"commandPalette": [
 				{
-					"command": "balena-vscode.copyDeviceNameToClipboard",
+					"command": "balena-vscode.copyItemToClipboard",
 					"when": "false"
 				},
 				{
-					"command": "balena-vscode.copyDeviceUUIDToClipboard",
+					"command": "balena-vscode.copyItemKeyToClipboard",
 					"when": "false"
 				},
 				{
-					"command": "balena-vscode.copyReleaseCommitToClipboard",
+					"command": "balena-vscode.copyItemValueToClipboard",
 					"when": "false"
 				},
 				{
-					"command": "balena-vscode.copyReleaseVersionToClipboard",
+					"command": "balena-vscode.copyNameToClipboard",
+					"when": "false"
+				},
+				{
+					"command": "balena-vscode.copyUUIDToClipboard",
 					"when": "false"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "balena-vscode.copyDeviceNameToClipboard",
-					"when": "viewItem == device",
-					"group": "cross-platform"
+					"command": "balena-vscode.copyItemToClipboard",
+					"when": "viewItem == copiableItem"
 				},
 				{
-					"command": "balena-vscode.copyDeviceUUIDToClipboard",
-					"when": "viewItem == device",
-					"group": "cross-platform"
+					"command": "balena-vscode.copyItemKeyToClipboard",
+					"when": "viewItem == keyValueItem"
 				},
 				{
-					"command": "balena-vscode.copyReleaseCommitToClipboard",
-					"when": "viewItem == release",
-					"group": "cross-platform"
-				},
-				{
-					"command": "balena-vscode.copyReleaseVersionToClipboard",
-					"when": "viewItem == release",
-					"group": "cross-platform"
+					"command": "balena-vscode.copyItemValueToClipboard",
+					"when": "viewItem == keyValueItem"
 				},
 				{
 					"command": "balena-vscode.inspectDevice",
-					"when": "view == fleetDevices && viewItem == device",
-					"group": "cross-platform"
+					"when": "viewItem == device",
+					"group": "navigation"
+				},
+				{
+					"command": "balena-vscode.copyNameToClipboard",
+					"when": "viewItem == device || viewItem == release"
+				},
+				{
+					"command": "balena-vscode.copyUUIDToClipboard",
+					"when": "viewItem == device || viewItem == release"
 				},
 				{
 					"command": "balena-vscode.openSSHConnectionInTerminal",
-					"when": "!isWeb && view == fleetDevices && viewItem == device",
-					"group": "native"
+					"when": "!isWeb && viewItem == device",
+					"group": "navigation"
 				}
 			]
 		}

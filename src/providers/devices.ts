@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { BalenaSDK, Device, Device as FleetDevice, getDeviceById, getDevices } from '@/lib/balena';
-import { Meta } from './meta';
 import {
-  DeviceOnlineIcon, 
-  DeviceHeartbeatOnlyIcon, 
+  DeviceOnlineIcon,
+  DeviceHeartbeatOnlyIcon,
   DeviceOfflineIcon,
 } from '@/icons';
 import { shortenUUID } from '@/utils';
+import { CopiableItem } from './sharedItems';
 
 
-export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | Meta> {
-  private _onDidChangeTreeData: vscode.EventEmitter<DeviceItem | Meta | undefined | void> = new vscode.EventEmitter<DeviceItem | Meta | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<DeviceItem | Meta | undefined | void> = this._onDidChangeTreeData.event;
+export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | vscode.TreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<DeviceItem | vscode.TreeItem | undefined | void> = new vscode.EventEmitter<DeviceItem | vscode.TreeItem | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<DeviceItem | vscode.TreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string) { }
 
@@ -23,9 +23,9 @@ export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | Met
     return element;
   }
 
-  getChildren(element?: DeviceItem): Thenable<DeviceItem[] | Meta[]> {
+  getChildren(element?: DeviceItem): Thenable<DeviceItem[] | vscode.TreeItem[]> {
     if (element) {
-      return Promise.resolve(this.getDeviceMeta(element.uuid));
+      return Promise.resolve(this.getDeviceDetails(element));
     } else {
       return Promise.resolve(this.getAllDevices());
     }
@@ -33,19 +33,28 @@ export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | Met
 
   private async getAllDevices(): Promise<DeviceItem[]> {
     const devices = await getDevices(this.balenaSdk, this.fleetId);
+
+    const sortByStatusThenLabel = (a: DeviceItem, b: DeviceItem) => (a.status - b.status) + a.label.localeCompare(b.label);
     return devices.map((d: FleetDevice) =>
       new DeviceItem(`${d.device_name}`, vscode.TreeItemCollapsibleState.Collapsed, d)
-    )
-      // sort by online status then by label
-      .sort((a, b) => (a.status - b.status) + a.label.localeCompare(b.label));
+    ).sort((a, b) => sortByStatusThenLabel(a,b));
   }
 
-  private async getDeviceMeta(deviceId: string): Promise<Meta[]> {
-    const device = await getDeviceById(this.balenaSdk, deviceId);
-    return Object.entries(device)
-      .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
-      .map(item => new Meta(`${item[0]}: ${item[1]}`))
-      .sort((a, b) => a.label.localeCompare(b.label));
+  private async getDeviceDetails(device: DeviceItem): Promise<vscode.TreeItem[]> {
+    const osDetails = new CopiableItem(device.osDetails);
+    osDetails.description = "os version";
+
+    const supervisorVersionDetails = new CopiableItem(device.supervisorDetails);
+    supervisorVersionDetails.description = "supervisor version";
+
+    const lastOnlineDetails = new CopiableItem(device.lastOnlineDetails);
+    lastOnlineDetails.description = "last online";
+
+    return [
+      osDetails,
+      supervisorVersionDetails,
+      lastOnlineDetails
+    ];
   }
 }
 
@@ -70,17 +79,21 @@ export class DeviceItem extends vscode.TreeItem {
   public get status() {
     const status = this.device.is_online;
     const statusMsg = this.device.api_heartbeat_state;
-    if(status) {
+    if (status) {
       return DeviceStatus.Online;
-    } else if(!status && statusMsg === "online") {
+    } else if (!status && statusMsg === "online") {
       return DeviceStatus.OnlineHeartbeatOnly;
     } else {
       return DeviceStatus.Offline;
     }
   }
 
+  public get lastOnlineDetails() { return this.device.last_vpn_event; }
+  public get osDetails() { return `${this.device.os_version} | ${this.device.os_variant}`; }
+  public get supervisorDetails() { return this.device.supervisor_version; }
+
   private setup() {
-    switch(this.status) {
+    switch (this.status) {
       case DeviceStatus.Online:
         this.tooltip = "Online";
         this.iconPath = DeviceOnlineIcon;
@@ -91,7 +104,7 @@ export class DeviceItem extends vscode.TreeItem {
         break;
       case DeviceStatus.Offline:
       default:
-        this.tooltip =  `Offline since ${this.device.last_connectivity_event}`;
+        this.tooltip = `Offline since ${this.device.last_connectivity_event}`;
         this.iconPath = DeviceOfflineIcon;
     }
   }
