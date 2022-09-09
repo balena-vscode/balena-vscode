@@ -7,7 +7,9 @@ import { registerView as registerStatusBarView } from '@/views/StatusBar';
 export function activate (context: vscode.ExtensionContext) {
   registerCommands(context);
   registerStatusBarView(context);
-  registerFleetExplorerView();
+  registerFleetExplorerView(context);
   registerDeviceInspectorView(context);
+
+  // Return context for use in tests
   return context;
 }

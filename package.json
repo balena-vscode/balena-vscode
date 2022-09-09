@@ -139,6 +139,10 @@
 			{
 				"command": "balena-vscode.copyUUIDToClipboard",
 				"title": "Copy UUID"
+			},
+			{
+				"command": "balena-vscode.openLogsInNewTab",
+				"title": "View Device Logs"
 			}
 		],
 		"menus": {
@@ -189,6 +193,10 @@
 				{
 					"command": "balena-vscode.copyUUIDToClipboard",
 					"when": "viewItem == device || viewItem == release"
+				},
+				{
+					"command": "balena-vscode.openLogsInNewTab",
+					"when": "viewItem == device"
 				},
 				{
 					"command": "balena-vscode.openSSHConnectionInTerminal",

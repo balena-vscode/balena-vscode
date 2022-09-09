@@ -11,30 +11,30 @@ export enum ViewId {
     Meta = "fleetMeta",
 }
 
-export const registerView = () => {
+export const registerView = (context: vscode.ExtensionContext) => {
   const balena = useBalenaClient();
   SelectedFleet$.subscribe(fleet => {
     if (fleet) {
-      vscode.window.createTreeView(ViewId.Devices, {
+      context.subscriptions.push(vscode.window.createTreeView(ViewId.Devices, {
         showCollapseAll: true,
         canSelectMany: true,
         treeDataProvider: new DevicesProvider(balena, fleet.slug)
-      });
+      }));
 
-      vscode.window.createTreeView(ViewId.Releases, {
+      context.subscriptions.push(vscode.window.createTreeView(ViewId.Releases, {
         showCollapseAll: true,
         canSelectMany: true,
         treeDataProvider: new ReleasesProvider(balena, fleet.slug)
-      });
+      }));
 
-      vscode.window.createTreeView(ViewId.Variables, {
+      context.subscriptions.push(vscode.window.createTreeView(ViewId.Variables, {
         treeDataProvider: new VariablesProvider(balena, getFleetConfigVariables, getFleetEnvVariables, fleet.slug)
-      });
+      }));
 
-      vscode.window.createTreeView(ViewId.Meta, {
+      context.subscriptions.push(vscode.window.createTreeView(ViewId.Meta, {
         canSelectMany: true,
         treeDataProvider: new MetaProvider(balena, getFleetById, fleet.slug)
-      });
+      }));
     }
   });
 };

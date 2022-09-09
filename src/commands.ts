@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getDeviceWithServices, isLoggedIn, Release, useBalenaClient } from '@/lib/balena';
+import { BalenaSDK, getDeviceWithServices, isLoggedIn, LogsSubscription, Release, useBalenaClient } from '@/lib/balena';
 import { showLoginOptions } from '@/views/Authentication';
 import { showSelectFleet } from '@/views/StatusBar';
 import { showWarnMsg, showInfoMsg } from '@/views/Notifications';
@@ -19,6 +19,7 @@ export enum CommandId {
   CopyItemValueToClipboard = 'balena-vscode.copyItemValueToClipboard',
   CopyNameToClipboard = 'balena-vscode.copyNameToClipboard',
   CopyUUIDToClipboard = 'balena-vscode.copyUUIDToClipboard',
+  OpenLogsInNewTab = 'balena-vscode.openLogsInNewTab',
 }
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
@@ -31,6 +32,7 @@ export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemValueToClipboard, copyItemValueToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyNameToClipboard, copyNameToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyUUIDToClipboard, copyUUIDToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenLogsInNewTab, openLogsInNewTab));
 };
 
 export const loginToBalenaCloud = async () => {
@@ -70,7 +72,7 @@ export const openSSHConnectionInTerminal = async (device?: DeviceItem) => {
 
   if (device) {
     deviceName = device.label;
-    deviceUUID = device.id;
+    deviceUUID = device.uuid;
   } else {
     const selectedDevice = await showSelectDeviceInput();
     deviceName = selectedDevice?.device_name;
@@ -97,4 +99,40 @@ export const copyUUIDToClipboard = async (item: DeviceItem | ReleaseItem) => awa
 const copyToClipboard = async (value: string) => {
   showInfoMsg(`Clipboard copied: ${value}`);
   await vscode.env.clipboard.writeText(value.toString());
+};
+
+export const openLogsInNewTab = async (device: DeviceItem) => {
+  const scheme = device.uuid
+  const provider = new class implements vscode.TextDocumentContentProvider {
+    onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+		onDidChange = this.onDidChangeEmitter.event;
+
+    private currentUri?: vscode.Uri;
+    private content: string = '';
+
+    constructor(private balenaSdk: BalenaSDK) {}
+
+    provideTextDocumentContent(uri: vscode.Uri, token?: vscode.CancellationToken) {
+      if(!this.currentUri) {
+        this.currentUri = uri
+        this.balenaSdk.logs.subscribe(this.currentUri.scheme, {count: 10}).then((logs: LogsSubscription) => {
+          logs.on('line', (line: any) => {
+              this.content = this.content.concat(line.message)
+              this.onDidChangeEmitter.fire(this.currentUri as vscode.Uri);
+          })
+
+          //TODO: When does the token actually get cancelled?
+          token?.onCancellationRequested(() => {
+            logs.unsubscribe()
+          })
+        })
+      }
+      return this.content
+    }
+  }(useBalenaClient())
+  vscode.workspace.registerTextDocumentContentProvider(scheme, provider)
+
+  const uri = vscode.Uri.parse(`${scheme}:`.concat('Logs for ').concat(device.name));
+  const doc = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(doc, {preview: false});
 };
