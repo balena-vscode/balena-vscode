@@ -5,7 +5,7 @@ import { showSelectFleet } from '@/views/StatusBar';
 import { showWarnMsg, showInfoMsg } from '@/views/Notifications';
 import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from '@/views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
-import { DeviceItem, DeviceStatus, ReleaseItem } from '@/providers';
+import { DeviceItem, DeviceStatus, DEVICE_LOG_URI_SCHEME, ReleaseItem } from '@/providers';
 import { createBalenaSSHTerminal } from './views/Terminal';
 import { KeyValueItem } from './providers/sharedItems';
 
@@ -102,37 +102,6 @@ const copyToClipboard = async (value: string) => {
 };
 
 export const openLogsInNewTab = async (device: DeviceItem) => {
-  const scheme = device.uuid
-  const provider = new class implements vscode.TextDocumentContentProvider {
-    onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
-		onDidChange = this.onDidChangeEmitter.event;
-
-    private currentUri?: vscode.Uri;
-    private content: string = '';
-
-    constructor(private balenaSdk: BalenaSDK) {}
-
-    provideTextDocumentContent(uri: vscode.Uri, token?: vscode.CancellationToken) {
-      if(!this.currentUri) {
-        this.currentUri = uri
-        this.balenaSdk.logs.subscribe(this.currentUri.scheme, {count: 10}).then((logs: LogsSubscription) => {
-          logs.on('line', (line: any) => {
-              this.content = this.content.concat(line.message)
-              this.onDidChangeEmitter.fire(this.currentUri as vscode.Uri);
-          })
-
-          //TODO: When does the token actually get cancelled?
-          token?.onCancellationRequested(() => {
-            logs.unsubscribe()
-          })
-        })
-      }
-      return this.content
-    }
-  }(useBalenaClient())
-  vscode.workspace.registerTextDocumentContentProvider(scheme, provider)
-
-  const uri = vscode.Uri.parse(`${scheme}:`.concat('Logs for ').concat(device.name));
-  const doc = await vscode.workspace.openTextDocument(uri);
-  await vscode.window.showTextDocument(doc, {preview: false});
+  const uri = vscode.Uri.parse(DEVICE_LOG_URI_SCHEME.concat(':', device.name, '#', device.uuid));
+  await vscode.window.showTextDocument(uri, { preview: true });
 };

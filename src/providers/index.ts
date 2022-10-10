@@ -1,3 +1,4 @@
+export * from './logs';
 export * from './devices';
 export * from './meta';
 export * from './releases';
