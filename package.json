@@ -1,7 +1,7 @@
 {
 	"name": "balena-vscode",
 	"author": "Kaleb Pace (development.6v1i9@slmail.me)",
-	"publisher": "Kaleb Pace",
+	"publisher": "kalebpace",
 	"displayName": "Balena (Unofficial)",
 	"description": "Unofficial VS Code extension for integration with Balena",
 	"version": "0.0.1",
@@ -19,6 +19,23 @@
 		"url": "https://github.com/kalebpace/balena-vscode"
 	},
 	"homepage": "https://github.com/kalebpace/balena-vscode/blob/main/README.md",
+	"scripts": {
+		"vscode:prepublish": "pnpm run package && pnpm run package-web",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"publish-to-marketplace": "vsce publish --pre-release",
+		"publish-to-openvsx": "ovsx publish --pre-release",
+		"compile": "webpack",
+		"watch": "webpack --watch",
+		"compile-web": "webpack --config webpack.web.config.js",
+		"watch-web": "webpack --watch --config webpack.web.config.js",
+		"serve-web": "serve --cors -l 5000",
+		"package-web": "webpack --mode production --devtool hidden-source-map --config webpack.web.config.js",
+		"compile-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+		"watch-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json -w",
+		"pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
 	"activationEvents": [
 		"onView:fleetDevices",
 		"onView:deviceSummary",
@@ -206,21 +223,6 @@
 			]
 		}
 	},
-	"scripts": {
-		"vscode:prepublish": "pnpm run package",
-		"compile": "webpack",
-		"watch": "webpack --watch",
-		"package": "webpack --mode production --devtool hidden-source-map",
-		"compile-web": "webpack --config webpack.web.config.js",
-		"watch-web": "webpack --watch --config webpack.web.config.js",
-		"serve-web": "serve --cors -l 5000",
-		"package-web": "webpack --mode production --devtool hidden-source-map --config webpack.web.config.js",
-		"compile-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
-		"watch-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json -w",
-		"pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
-	},
 	"dependencies": {
 		"balena-sdk": "^16.25.1",
 		"rxjs": "^7.5.6"
@@ -244,11 +246,13 @@
 		"mocha": "^10.0.0",
 		"node-polyfill-webpack-plugin": "^2.0.1",
 		"null-loader": "^4.0.1",
+		"ovsx": "^0.5.1",
 		"process": "^0.11.10",
 		"serve": "^14.0.1",
 		"ts-loader": "^9.3.1",
 		"tsc-alias": "^1.7.0",
 		"typescript": "^4.7.4",
+		"vsce": "^2.11.0",
 		"webpack": "^5.74.0",
 		"webpack-cli": "^4.10.0"
 	}

@@ -2,7 +2,9 @@
 .vscode-test/**
 out/**
 node_modules/**
+node_modules/
 src/**
+test-util/
 .gitignore
 .yarnrc
 webpack.config.js
@@ -13,7 +15,7 @@ vsc-extension-quickstart.md
 **/*.ts
 
 # Nix
-direnv/
+.direnv
 .envrc
 flake.lock
 *.nix
