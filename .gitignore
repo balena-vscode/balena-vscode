@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .direnv/
+result
 .vscode/ltex*
 out/
 test/balena-nodejs-hello-world

@@ -40,7 +40,7 @@ const extensionConfig = {
       {
         // Without this null loader, source maps, markdown, 
         // and LICENSE files throw errors for the Balena SDK module
-        test: /\.(md|map)$|LICENSE/,
+        test: /\.(md|map|tar|bak)$|LICENSE/,
         loader: 'null-loader',
       },
       {

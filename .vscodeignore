@@ -8,14 +8,22 @@ test-util/
 .gitignore
 .yarnrc
 webpack.config.js
+webpack.web.config.js
+pnpm-lock.yaml
+.github/
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
+**/*.bak
+assets/balena.svg
+assets/preview.png
+assets/vscode_dot_dev_preview.png
 
 # Nix
 .direnv
 .envrc
 flake.lock
 *.nix
+result

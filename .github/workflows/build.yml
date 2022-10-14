@@ -1,0 +1,35 @@
+name: Build balena-vscode release
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches: 
+      - main
+
+jobs:
+  balena-vscode:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+
+    - name: Nix Flake Build
+      uses: cachix/install-nix-action@v15
+      with:
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    - run: nix build
+
+    - name: Create Release from Artifacts
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        title: Balena VSCode
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: 'latest'
+        draft: true
+        prerelease: true
+        files: |
+          ./result/*.vsix
+    

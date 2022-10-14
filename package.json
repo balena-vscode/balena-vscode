@@ -20,7 +20,8 @@
 	},
 	"homepage": "https://github.com/kalebpace/balena-vscode/blob/main/README.md",
 	"scripts": {
-		"vscode:prepublish": "pnpm run package && pnpm run package-web",
+		"build": "vsce package",
+		"vscode:prepublish": "npm run package & npm run package-web",
 		"package": "webpack --mode production --devtool hidden-source-map",
 		"publish-to-marketplace": "vsce publish --pre-release",
 		"publish-to-openvsx": "ovsx publish --pre-release",
