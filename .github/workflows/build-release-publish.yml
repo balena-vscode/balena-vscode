@@ -1,0 +1,58 @@
+name: Build, Release, and Publish
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches: 
+      - main
+
+env:
+  VSCE_PAT: ${{ secrets.VSCE_PAT }}
+  OVSX_PAT: ${{ secrets.OVSX_PAT }}
+  VSIX_FILE_NAME: "*.vsix"
+
+jobs:
+  build-release-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+
+    - name: Nix Flake Build
+      uses: cachix/install-nix-action@v18
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    - run: nix build
+    - run: cp ./result/$VSIX_FILE_NAME ./
+
+    # - name: Upload Build Artifacts
+    #   uses: actions/upload-artifact@v3
+    #   with: 
+    #     name: balena-vscode-vsix
+    #     path: ./$VSIX_FILE_NAME
+    #     retention-days: 7
+    # - name: Download Build Artifacts
+    #   uses: actions/download-artifact@v3
+    #   with: 
+    #     name: balena-vscode-vsix
+    #     path: $VSIX_FILE_NAME
+
+    - name: Create Release from Artifacts
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        title: Balena VSCode
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: 'latest'
+        prerelease: true
+        files: |
+          ./$VSIX_FILE_NAME
+
+    - name: Publish to VSCode Marketplace & Open VSX Registry
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - run: npx vsce publish --packagePath ./$VSIX_FILE_NAME --pre-release
+    - run: npx ovsx publish --packagePath ./$VSIX_FILE_NAME --pre-release
