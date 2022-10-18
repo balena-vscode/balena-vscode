@@ -2,13 +2,11 @@
 	"compilerOptions": {
 		"module": "CommonJS",
 		"moduleResolution": "node",
-		"target": "ESNEXT",
+		"target": "ES2018",
 		"isolatedModules": true, // https://esbuild.github.io/content-types/#isolated-modules
 		"esModuleInterop": true, // https://esbuild.github.io/content-types/#es-module-interop
 		"lib": [
-			"ESNext",
 			"ES2018",
-			"ES2015",
 			"DOM"
 		],
 		"sourceMap": true,

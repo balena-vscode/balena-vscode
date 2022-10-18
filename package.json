@@ -4,36 +4,33 @@
 	"publisher": "kalebpace",
 	"displayName": "Balena (Unofficial)",
 	"description": "Unofficial VS Code extension for integration with Balena",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.70.0"
 	},
 	"categories": [
 		"Other"
 	],
+	"galleryBanner": {
+		"color": "FFC100"
+	},
 	"main": "./dist/node/extension.js",
 	"browser": "./dist/web/extension.js",
 	"icon": "assets/balena.png",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/kalebpace/balena-vscode"
+		"url": "https://github.com/balena-vscode/balena-vscode"
 	},
-	"homepage": "https://github.com/kalebpace/balena-vscode/blob/main/README.md",
+	"homepage": "https://github.com/balena-vscode/balena-vscode/blob/main/README.md",
 	"scripts": {
-		"build": "vsce package --pre-release",
-		"vscode:prepublish": "npm run package & npm run package-web",
-		"package": "webpack --mode production --devtool hidden-source-map",
-		"compile": "webpack",
-		"watch": "webpack --watch",
-		"compile-web": "webpack --config webpack.web.config.js",
-		"watch-web": "webpack --watch --config webpack.web.config.js",
-		"serve-web": "serve --cors -l 5000",
-		"package-web": "webpack --mode production --devtool hidden-source-map --config webpack.web.config.js",
-		"compile-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
-		"watch-tests": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json -w",
-		"pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
+		"build": "npm run package",
+		"package": "vsce package --no-dependencies --pre-release",
+		"vscode:prepublish": "npm run build-prod",
+		"build-prod": "ts-node ./esbuild.prod.ts",
+		"build-dev": "ts-node ./esbuild.dev.ts",
+		"watch-prod": "npm run build-prod -- --watch",
+		"watch-dev": "npm run build-dev -- --watch",
+		"lint": "eslint src --ext ts"
 	},
 	"activationEvents": [
 		"onView:fleetDevices",
@@ -227,6 +224,8 @@
 		"rxjs": "^7.5.6"
 	},
 	"devDependencies": {
+		"@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+		"@esbuild-plugins/node-modules-polyfill": "^0.1.4",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.1.1",
 		"@types/node": "16.x",
@@ -234,24 +233,18 @@
 		"@typescript-eslint/eslint-plugin": "^5.31.0",
 		"@typescript-eslint/parser": "^5.31.0",
 		"@vscode/test-electron": "^2.1.5",
-		"esbuild-loader": "^2.19.0",
+		"abort-controller": "^3.0.0",
+		"esbuild": "^0.15.11",
 		"eslint": "^8.20.0",
 		"eslint-config-standard": "^17.0.0",
 		"eslint-plugin-import": "^2.25.2",
 		"eslint-plugin-n": "^15.0.0",
 		"eslint-plugin-promise": "^6.0.0",
-		"generator-code": "^1.6.14",
 		"glob": "^8.0.3",
 		"mocha": "^10.0.0",
-		"node-polyfill-webpack-plugin": "^2.0.1",
-		"null-loader": "^4.0.1",
-		"process": "^0.11.10",
-		"serve": "^14.0.1",
-		"ts-loader": "^9.3.1",
-		"tsc-alias": "^1.7.0",
+		"stream-browserify": "^3.0.0",
+		"ts-node": "^10.9.1",
 		"typescript": "^4.7.4",
-		"vsce": "^2.11.0",
-		"webpack": "^5.74.0",
-		"webpack-cli": "^4.10.0"
+		"vsce": "^2.11.0"
 	}
 }

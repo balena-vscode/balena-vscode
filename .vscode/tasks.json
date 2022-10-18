@@ -5,28 +5,9 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "watch-tests",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never",
-				"group": "watchers"
-			},
-			"group": "build"
-		},
-		{
-			"label": "tasks: watch-tests",
-			"dependsOn": [
-				"npm: compile",
-				"npm: watch-tests"
-			],
-			"problemMatcher": []
-		},
-		{
-			"type": "npm",
-			"script": "compile",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
+			"script": "build-dev",
+			"problemMatcher": ["$tsc"],
+			"isBackground": false,
 			"presentation": {
 				"reveal": "never",
 				"group": "watchers",
@@ -38,25 +19,46 @@
 		},
 		{
 			"type": "npm",
-			"script": "compile-web",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
+			"script": "watch-dev",
+			"problemMatcher": ["$tsc"],
+			"isBackground": false,
 			"presentation": {
 				"reveal": "never",
-				"group": "watchers"
+				"group": "watchers",
 			},
-			"group": "build"
-		},
-		{
-			"type": "npm",
-			"script": "compile-tests",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never",
-				"group": "watchers"
+			"group": {
+				"kind": "build",
 			},
-			"group": "build"
 		},
+		// {
+		// 	"type": "npm",
+		// 	"script": "compile-tests",
+		// 	"problemMatcher": "$tsc-watch",
+		// 	"isBackground": true,
+		// 	"presentation": {
+		// 		"reveal": "never",
+		// 		"group": "watchers"
+		// 	},
+		// 	"group": "build"
+		// },
+		// {
+		// 	"type": "npm",
+		// 	"script": "watch-tests",
+		// 	"problemMatcher": "$tsc-watch",
+		// 	"isBackground": true,
+		// 	"presentation": {
+		// 		"reveal": "never",
+		// 		"group": "watchers"
+		// 	},
+		// 	"group": "build"
+		// },
+		// {
+		// 	"label": "tasks: watch-tests",
+		// 	"dependsOn": [
+		// 		"npm: compile",
+		// 		"npm: watch-tests"
+		// 	],
+		// 	"problemMatcher": []
+		// },
 	]
 }

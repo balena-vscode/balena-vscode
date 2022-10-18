@@ -26,33 +26,19 @@ jobs:
         extra_nix_config: |
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
     - run: nix build
-    - run: cp ./result/$VSIX_FILE_NAME ./
-
-    # - name: Upload Build Artifacts
-    #   uses: actions/upload-artifact@v3
-    #   with: 
-    #     name: balena-vscode-vsix
-    #     path: ./$VSIX_FILE_NAME
-    #     retention-days: 7
-    # - name: Download Build Artifacts
-    #   uses: actions/download-artifact@v3
-    #   with: 
-    #     name: balena-vscode-vsix
-    #     path: $VSIX_FILE_NAME
 
     - name: Create Release from Artifacts
       uses: marvinpinto/action-automatic-releases@latest
       with:
-        title: Balena VSCode
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: 'latest'
         prerelease: true
         files: |
-          ./$VSIX_FILE_NAME
+          ./result/*
 
     - name: Publish to VSCode Marketplace & Open VSX Registry
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - run: npx vsce publish --packagePath ./$VSIX_FILE_NAME --pre-release
-    - run: npx ovsx publish --packagePath ./$VSIX_FILE_NAME --pre-release
+    - run: npx vsce publish --packagePath ./result/$VSIX_FILE_NAME --pre-release
+    - run: npx ovsx publish --packagePath ./result/$VSIX_FILE_NAME --pre-release

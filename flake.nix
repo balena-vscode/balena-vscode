@@ -19,12 +19,6 @@
           config.projectRoot = ./.;
         };
 
-        buildInputs = with pkgs; [
-            nodejs
-            nodePackages.pnpm
-        ];
-
-      in rec {
          nodeProjects = initD2N.makeOutputs {
           source = ./.;
           settings = [
@@ -36,6 +30,7 @@
             }
           ];
         };
+      in {
 
         defaultPackage = pkgs.stdenv.mkDerivation {
           name = "balena-vscode";
@@ -48,7 +43,6 @@
 
         devShell = with pkgs; mkShell {
           buildInputs = [
-            buildInputs
             qemu
           ];
         };
