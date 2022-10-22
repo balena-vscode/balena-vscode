@@ -1,11 +1,11 @@
-name: Build, Release, and Publish
+name: Build and Publish a Pre-Release
 on:
   push:
     branches:
       - main
   pull_request:
     branches: 
-      - main
+      - develop
 
 env:
   VSCE_PAT: ${{ secrets.VSCE_PAT }}

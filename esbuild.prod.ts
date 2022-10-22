@@ -2,7 +2,7 @@ import { build, serve, BuildOptions } from 'esbuild';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 
-import { BalenaSdkPolyfillPlugin } from './esbuild-balenaSdkPolyfillPlugin';
+import { BalenaSdkPolyfillPlugin } from './build/esbuild-balenaSdkPolyfillPlugin';
 
 const buildOptsNode: BuildOptions = {
   entryPoints: ['./src/extension.ts'],
@@ -22,7 +22,7 @@ const buildOptsNode: BuildOptions = {
 
 const buildOptsWeb: BuildOptions = {
   entryPoints: ['./src/extension.ts'],
-  inject: ['./balenaSdkWeb-shim.ts'],
+  inject: ['./build/balenaSdkWeb-shim.ts'],
   outfile: './dist/web/extension.js',
   external: ['vscode'],
   platform: 'browser',
