@@ -43,6 +43,7 @@
 
         devShell = with pkgs; mkShell {
           buildInputs = [
+            nodejs
             qemu
           ];
         };
