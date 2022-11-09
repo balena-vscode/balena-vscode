@@ -8,7 +8,7 @@ export class MetaProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
     constructor(
         private balenaSdk: BalenaSDK,
-        private resourceFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<Device | Fleet>,
+        private resourceFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<void | Device | Fleet>,
         public id: string,
     ) { }
 
@@ -25,10 +25,10 @@ export class MetaProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     }
 
     private async getAllMetas(): Promise<KeyValueItem[]> {
-        const metas = await this.resourceFetchMethod(this.balenaSdk, this.id);
+        const metas = await this.resourceFetchMethod(this.balenaSdk, this.id) ?? {};
         return Object.entries(metas)
         .filter(item => item[1] !== null && typeof item[1] !== "object" && item[1] !== undefined && item[1] !== '')
-        .map(item => new KeyValueItem(item[0], item[1]))
+        .map(item => new KeyValueItem(item[0], item[1] as string))
         .sort((a, b) => (a.label as string).localeCompare(b.label as string));
     }
 }

@@ -1,10 +1,8 @@
 import * as settings from '@/settings';
-import { showLoginOptions } from '@/views/Authentication';
 
-import { BalenaSDK, DeviceType, getSdk, NavigationResource, SdkOptions } from 'balena-sdk';
+import { BalenaSDK, DeviceType, NavigationResource, SdkOptions, getSdk } from 'balena-sdk';
 import * as BalenaErrors from 'balena-errors';
-import { showBalenaSetupWarning, showWarnMsg } from './views/Notifications';
-import { CommandId } from './commands';
+import { showBalenaSetupWarning } from './views/Notifications';
 
 export * from 'balena-sdk';
 export {

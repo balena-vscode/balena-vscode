@@ -8,7 +8,7 @@ export class ServicesProvider implements vscode.TreeDataProvider<Service> {
 
     constructor(
         private balenaSdk: BalenaSDK,
-        private resourceFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<DeviceWithServiceDetails<CurrentServiceWithCommit>>,
+        private resourceFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<void | DeviceWithServiceDetails<CurrentServiceWithCommit>>,
         public id: string,
     ) { }
 
@@ -25,8 +25,12 @@ export class ServicesProvider implements vscode.TreeDataProvider<Service> {
     }
 
     private async getAllServices(): Promise<Service[]> {
-        const services = await this.resourceFetchMethod(this.balenaSdk, this.id);
-        return Object.keys(services.current_services).map(s => new Service(s, services.current_services[s][0].status));
+        const services = await this.resourceFetchMethod(this.balenaSdk, this.id) ?? undefined;
+        if(services) {
+            return Object.keys(services.current_services).map(s => new Service(s, services.current_services[s][0].status));
+        } else {
+            return [];
+        }
     }
 }
 

@@ -3,7 +3,6 @@ import * as settings from '@/settings';
 import { BehaviorSubject } from 'rxjs';
 import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '@/balena';
 import { CommandId } from '@/commands';
-import { showErrMsg } from './Notifications';
 
 export const SelectedFleet$ = new BehaviorSubject<Fleet | undefined>(undefined);
 

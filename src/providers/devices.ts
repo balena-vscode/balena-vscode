@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Device, Device as FleetDevice, DeviceWithServiceDetails, getDeviceById, getDevices, getDeviceType, useBalenaClient, shortenUUID } from '@/balena';
+import { BalenaSDK, Device, DeviceWithServiceDetails, Device as FleetDevice, getDeviceType, getDevices, shortenUUID } from '@/balena';
 import {
-  DeviceOnlineIcon,
   DeviceHeartbeatOnlyIcon,
   DeviceOfflineIcon,
+  DeviceOnlineIcon,
 } from '@/icons';
 import { CopiableItem } from './sharedItems';
 
@@ -31,7 +31,7 @@ export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | vsc
   }
 
   private async getAllDevices(): Promise<DeviceItem[]> {
-    const devices = await getDevices(this.balenaSdk, this.fleetId);
+    const devices = await getDevices(this.balenaSdk, this.fleetId) ?? [];
 
     const sortByStatusThenLabel = (a: DeviceItem, b: DeviceItem) => (a.status - b.status) + a.label.localeCompare(b.label);
     return devices.map((d: FleetDevice) =>
@@ -89,7 +89,7 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private async buildDeviceItems(): Promise<DeviceItem[]> {
-    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type)).name;
+    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type))?.name;
     return [
       new DeviceItem(`${this.device.device_name} - ${deviceType}`, vscode.TreeItemCollapsibleState.None, this.device),
     ];

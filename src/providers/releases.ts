@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, Release, shortenUUID } from '@/balena';
+import { BalenaSDK, DeviceTag, Release as FleetRelease, Image, Release, ReleaseTag, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, getFleetReleaseWithImageDetails, getFleetReleases, shortenUUID } from '@/balena';
 import {
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
-  UnknownIcon,
-  ReleaseValidIcon,
   ReleaseFinalizedIcon,
+  ReleaseValidIcon,
   TagIcon,
   TextIcon,
+  UnknownIcon,
 } from '@/icons';
 
 
@@ -43,13 +43,13 @@ export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem
   }
 
   private async getAllReleases(): Promise<ReleaseItem[]> {
-    const releases = await getFleetReleases(this.balenaSdk, this.fleetId);
+    const releases = await getFleetReleases(this.balenaSdk, this.fleetId) ?? [];
     return releases.map((r: FleetRelease) =>
       new ReleaseItem(`${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r));
   }
 
   private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
-    this.selectedReleaseDetails = await getFleetReleaseWithImageDetails(this.balenaSdk, releaseId);
+    this.selectedReleaseDetails = await getFleetReleaseWithImageDetails(this.balenaSdk, releaseId) ?? undefined;
     return [
       new vscode.TreeItem("images", vscode.TreeItemCollapsibleState.Collapsed),
       new vscode.TreeItem("tags", vscode.TreeItemCollapsibleState.Collapsed),
@@ -61,7 +61,9 @@ export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem
       const items = [];
       for (const i of this.selectedReleaseDetails.images) {
         const image = await getFleetReleaseImage(this.balenaSdk, i.id);
-        items.push(new ImageItem(image));
+        if(image) {
+          items.push(new ImageItem(image));
+        }
       }
       return items;
     } else {
@@ -71,7 +73,7 @@ export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem
 
   private async getTags(): Promise<TagItem[]> {
     if (this.selectedReleaseDetails) {
-      const tags = await getFleetReleaseTags(this.balenaSdk, this.selectedReleaseDetails.id);
+      const tags = await getFleetReleaseTags(this.balenaSdk, this.selectedReleaseDetails.id) ?? [];
       return tags.map(t => new TagItem(t));
     } else {
       return [];
@@ -97,7 +99,7 @@ export class ReleaseItem extends vscode.TreeItem {
     this.setup();
   }
 
-  public get name() { return this.label; };
+  public get name() { return this.label; }
   public get uuid() { return this.release.commit; }
   public get status() {
     const status = this.release.status;

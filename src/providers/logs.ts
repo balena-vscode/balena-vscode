@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { BalenaSDK, LogsSubscription } from '@/balena';
+import { BalenaSDK, LogMessage, LogsSubscription } from '@/balena';
 
 type Subscriptions = {
     [uri: string]: {
@@ -36,7 +36,7 @@ export class LogsProvider implements vscode.TextDocumentContentProvider {
                 .then((logs: LogsSubscription) => {
                     this.subscriptions[uriString] = {
                         content: '',
-                        handle: logs.on('line', (line: any) => {
+                        handle: logs.on('line', (line: LogMessage) => {
                             const oldContent = this.subscriptions[uriString]?.content ?? '';
                             this.subscriptions[uriString].content = oldContent.concat(line.message);
                             this.onDidChangeEmitter.fire(uri as vscode.Uri);

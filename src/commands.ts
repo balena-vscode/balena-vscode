@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, getDeviceWithServices, isLoggedIn, LogsSubscription, Release, useBalenaClient } from '@/balena';
+import { getDeviceWithServices, isLoggedIn, useBalenaClient } from '@/balena';
 import { showLoginOptions } from '@/views/Authentication';
 import { showSelectFleet } from '@/views/StatusBar';
-import { showWarnMsg, showInfoMsg } from '@/views/Notifications';
-import { SelectedDevice$, showSelectDeviceInput, ViewId as DeviceInspectorViewIds } from '@/views/DeviceInspector';
+import { showInfoMsg, showWarnMsg } from '@/views/Notifications';
+import { ViewId as DeviceInspectorViewIds, SelectedDevice$, showSelectDeviceInput } from '@/views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
-import { DeviceItem, DeviceStatus, DEVICE_LOG_URI_SCHEME, ReleaseItem } from '@/providers';
+import { DEVICE_LOG_URI_SCHEME, DeviceItem, DeviceStatus, ReleaseItem } from '@/providers';
 import { createBalenaSSHTerminal } from './views/Terminal';
 import { KeyValueItem } from './providers/sharedItems';
 
@@ -52,14 +52,14 @@ export const selectActiveFleet = async () => {
 export const inspectDevice = async (device?: DeviceItem) => {
   const balena = useBalenaClient();
   if (device) {
-    const deviceWithServices = await getDeviceWithServices(balena, device.uuid);
+    const deviceWithServices = await getDeviceWithServices(balena, device.uuid) ?? undefined;
     SelectedDevice$.next(deviceWithServices);
     focusDeviceInspector();
   }
   else {
     const selectedDevice = await showSelectDeviceInput();
     if (selectedDevice) {
-      const device = await getDeviceWithServices(balena, selectedDevice.uuid);
+      const device = await getDeviceWithServices(balena, selectedDevice.uuid) ?? undefined;
       SelectedDevice$.next(device);
       focusDeviceInspector();
     }

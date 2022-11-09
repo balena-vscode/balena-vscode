@@ -9,8 +9,8 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
 
   constructor (
     private balenaSdk: BalenaSDK, 
-    private configFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<DeviceVariable[] | FleetVariable[]>,
-    private envFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<DeviceVariable[] | FleetVariable[]>,
+    private configFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<void | DeviceVariable[] | FleetVariable[]>,
+    private envFetchMethod: (balenaSdk: BalenaSDK, id: string | number) => Promise<void | DeviceVariable[] | FleetVariable[]>,
     private id: string | number
   ) {}
 
@@ -41,12 +41,12 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 
   private async getConfigVariables() : Promise<KeyValueItem[]> {
-    const vars =  await this.configFetchMethod(this.balenaSdk, this.id);
+    const vars =  await this.configFetchMethod(this.balenaSdk, this.id) ?? [];
     return vars.map(v => new KeyValueItem(v.name, v.value, VariableIcon));
   }
 
   private async getEnvVariables() : Promise<KeyValueItem[]> {
-    const vars = await this.envFetchMethod(this.balenaSdk, this.id);
+    const vars = await this.envFetchMethod(this.balenaSdk, this.id) ?? [];
     return vars.map(v => new KeyValueItem(v.name, v.value, VariableIcon));
   }
 }

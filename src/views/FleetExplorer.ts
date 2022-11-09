@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getFleetById, getFleetConfigVariables, getFleetEnvVariables, useBalenaClient } from '@/balena';
-import { DevicesProvider, ReleasesProvider, VariablesProvider, MetaProvider } from '@/providers';
+import { DevicesProvider, MetaProvider, ReleasesProvider, VariablesProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
 
 export enum ViewId {

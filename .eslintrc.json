@@ -2,19 +2,21 @@
     "root": true,
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": 6,
+        "project": "./tsconfig.json",
+        "ecmaVersion": 2018,
         "sourceType": "module"
     },
     "plugins": [
         "@typescript-eslint"
     ],
+    "extends": [
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+
+    ],
     "rules": {
-        "@typescript-eslint/naming-convention": "off",
-        "@typescript-eslint/semi": "warn",
-        "curly": "warn",
-        "eqeqeq": "warn",
-        "no-throw-literal": "warn",
-        "semi": "off"
+        "@typescript-eslint/semi": "error",
+        "@typescript-eslint/no-unused-vars": "error"
     },
     "ignorePatterns": [
         "out",
