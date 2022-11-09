@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Device, Device as FleetDevice, DeviceWithServiceDetails, getDeviceById, getDevices, getDeviceType, useBalenaClient } from '@/lib/balena';
+import { BalenaSDK, Device, Device as FleetDevice, DeviceWithServiceDetails, getDeviceById, getDevices, getDeviceType, useBalenaClient, shortenUUID } from '@/balena';
 import {
   DeviceOnlineIcon,
   DeviceHeartbeatOnlyIcon,
   DeviceOfflineIcon,
 } from '@/icons';
-import { shortenUUID } from '@/utils';
 import { CopiableItem } from './sharedItems';
 
 

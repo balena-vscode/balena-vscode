@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as settings from '@/settings';
 import { BehaviorSubject } from 'rxjs';
-import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '@/lib/balena';
+import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '@/balena';
 import { CommandId } from '@/commands';
 import { showErrMsg } from './Notifications';
 
@@ -38,7 +38,7 @@ const getInitialFleet = async () => {
   if(userDefault) {
     return await getFleetById(balena, userDefault);
   } else {
-    // FIXME: Implement error handling for all SDK requests. This fails to render
+    // TODO FIXME: Implement error handling for all SDK requests. This fails to render
     // the status bar in web extension mode due to an exception when not logged in.
     // When attempting to implement errors for all requests, logger issues are encountered
     // in the console, which may be related to accessing the vscode logger before its available?

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getFleetById, getFleetConfigVariables, getFleetEnvVariables, useBalenaClient } from '@/lib/balena';
+import { getFleetById, getFleetConfigVariables, getFleetEnvVariables, useBalenaClient } from '@/balena';
 import { DevicesProvider, ReleasesProvider, VariablesProvider, MetaProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
 

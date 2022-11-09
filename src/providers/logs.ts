@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { BalenaSDK, LogsSubscription } from '@/lib/balena';
+import { BalenaSDK, LogsSubscription } from '@/balena';
 
 type Subscriptions = {
     [uri: string]: {

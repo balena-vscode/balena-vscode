@@ -1,6 +1,6 @@
 import vscode, { Uri } from "vscode";
 import { DEVICE_LOG_URI_SCHEME, LogsProvider } from "@/providers";
-import { useBalenaClient } from "@/lib/balena";
+import { useBalenaClient } from "@/balena";
 
 export const registerView = (context: vscode.ExtensionContext) => {
     const balena = useBalenaClient();

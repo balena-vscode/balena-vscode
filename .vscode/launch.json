@@ -27,7 +27,7 @@
 			"outFiles": [
 				"${workspaceFolder}/dist/web/**/*.js"
 			],
-			"preLaunchTask": "npm: watch-dev"
+			"preLaunchTask": "${defaultBuildTask}"
 		}
 		// {
 		// 	"name": "Native: Extension Tests",

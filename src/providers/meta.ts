@@ -1,4 +1,4 @@
-import { BalenaSDK, Device, Fleet } from '@/lib/balena';
+import { BalenaSDK, Device, Fleet } from '@/balena';
 import * as vscode from 'vscode';
 import { KeyValueItem } from './sharedItems';
 

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { VariableIcon } from '@/icons';
-import { BalenaSDK, DeviceVariable, FleetVariable } from '@/lib/balena';
+import { BalenaSDK, DeviceVariable, FleetVariable } from '@/balena';
 import { KeyValueItem } from './sharedItems';
 
 export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {

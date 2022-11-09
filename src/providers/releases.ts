@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, Release } from '@/lib/balena';
+import { BalenaSDK, Release as FleetRelease, getFleetReleases, getFleetReleaseWithImageDetails, ReleaseTag, DeviceTag, Image, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, Release, shortenUUID } from '@/balena';
 import {
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
@@ -9,7 +9,6 @@ import {
   TagIcon,
   TextIcon,
 } from '@/icons';
-import { shortenUUID } from '@/utils';
 
 
 export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {

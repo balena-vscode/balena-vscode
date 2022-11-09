@@ -1,9 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
 import * as vscode from 'vscode';
-import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, listDeviceIds, useBalenaClient } from '@/lib/balena';
+import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceWithServices, getDeviceIds, useBalenaClient, shortenUUID } from '@/balena';
 import { MetaProvider, ServicesProvider, VariablesProvider, DeviceSummaryProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
-import { shortenUUID } from '@/utils';
 
 export enum ViewId {
     DeviceInspector = "deviceInspector",
@@ -62,7 +61,7 @@ export const showSelectDeviceInput = async () => {
     }).unsubscribe();
 
     if (selectedFleet) {
-        const devices = await listDeviceIds(balena, selectedFleet.slug);
+        const devices = await getDeviceIds(balena, selectedFleet.slug);
         const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid));
         const selectedDevice = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
             placeHolder: 'Select a device...',

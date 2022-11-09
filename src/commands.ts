@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, getDeviceWithServices, isLoggedIn, LogsSubscription, Release, useBalenaClient } from '@/lib/balena';
+import { BalenaSDK, getDeviceWithServices, isLoggedIn, LogsSubscription, Release, useBalenaClient } from '@/balena';
 import { showLoginOptions } from '@/views/Authentication';
 import { showSelectFleet } from '@/views/StatusBar';
 import { showWarnMsg, showInfoMsg } from '@/views/Notifications';

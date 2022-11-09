@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import {showInfoMsg, showErrMsg} from './Notifications';
-import { useBalenaClient, loginWithEmailPass, loginWithToken } from '@/lib/balena';
+import { useBalenaClient, loginWithEmailPass, loginWithToken } from '@/balena';
 
 enum AuthenticationMethods {
   APIKey = 'API Key',

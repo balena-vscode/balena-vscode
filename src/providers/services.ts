@@ -1,4 +1,4 @@
-import { BalenaSDK, CurrentServiceWithCommit, DeviceWithServiceDetails } from '@/lib/balena';
+import { BalenaSDK, CurrentServiceWithCommit, DeviceWithServiceDetails } from '@/balena';
 import * as vscode from 'vscode';
 import { ServiceRunningIcon, ServiceStoppedIcon, UnknownIcon } from '@/icons';
 
