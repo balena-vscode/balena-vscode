@@ -1,4 +1,4 @@
-import vscode, { Uri } from "vscode";
+import vscode from "vscode";
 import { DEVICE_LOG_URI_SCHEME, LogsProvider } from "@/providers";
 import { useBalenaClient } from "@/balena";
 

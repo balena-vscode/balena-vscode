@@ -11,13 +11,13 @@ export const registerView = async (context: vscode.ExtensionContext) => {
   fleetStatusItem = createFleetStatusItem();
   context.subscriptions.push(fleetStatusItem);
 
-  SelectedFleet$.next(await getInitialFleet());
+  SelectedFleet$.next(await getInitialFleet() ?? undefined);
   SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet?.slug ?? 'None'));
 };
 
 export const showSelectFleet = async () => {
   const balena = useBalenaClient();
-  const fleets = await getFleets(balena);
+  const fleets = await getFleets(balena) ?? [];
 
   const fleetIds = fleets.map(f => f.slug);
   const selectedFleetId = (await vscode.window.showQuickPick(fleetIds, {
@@ -38,11 +38,7 @@ const getInitialFleet = async () => {
   if(userDefault) {
     return await getFleetById(balena, userDefault);
   } else {
-    // TODO FIXME: Implement error handling for all SDK requests. This fails to render
-    // the status bar in web extension mode due to an exception when not logged in.
-    // When attempting to implement errors for all requests, logger issues are encountered
-    // in the console, which may be related to accessing the vscode logger before its available?
-    const fleets = await getFleets(balena).catch(r => showErrMsg(r)) ?? [];
+    const fleets = await getFleets(balena) ?? [];
     return fleets[0];
   }
 };

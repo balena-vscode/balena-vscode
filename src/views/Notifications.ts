@@ -1,5 +1,22 @@
 import * as vscode from 'vscode';
 import { useLogger } from '@/logger';
+import { CommandId } from '@/commands';
+
+export const showBalenaSetupWarning = async () => {
+  const logger = useLogger();
+
+  const msg = "The BalenaSDK is not initialized: are you logged in?";
+  const actions = ["Log In"];
+  logger.appendLine(msg);
+  
+  const selectedAction = await vscode.window.showInformationMessage(msg, ...actions);
+  
+  switch(selectedAction) {
+    case "Log In":
+      vscode.commands.executeCommand(CommandId.LoginToBalenaCloud);
+      logger.appendLine(`selected: ${msg}`);
+  }
+};
 
 export const showInfoMsg = (msg: string) => {
   vscode.window.showInformationMessage(msg);
