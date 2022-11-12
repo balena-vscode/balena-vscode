@@ -4,20 +4,13 @@ Welcome and thank you for taking time to consider contributing to this project!
 
 ## Project Setup
 
-### Dependencies
- - Nix
- - Docker/Podman/OCI-compliant containers (for testing utilities)
+### Recommended Dependencies
+ - [act](https://github.com/nektos/act) for testing github actions locally
  
 ### Steps 
 ```shell
 # clone the repository
 git clone https://github.com/balena-vscode/balena-vscode && cd ./balena-vscode
-
-# open Nix development shell environment
-nix develop
-
-# install node dependencies
-npm install
 
 # build, serve, and watch 'balena-vscode' for extension development
 npm run build-dev -- --watch
@@ -33,18 +26,12 @@ code --disable-extensions --extensionDevelopmentPath=./
 
 # generate .vsix package
 npm run build
-## or 
-nix build
 ```
 
 ### Testing
 #### Creating a test fleet and devices
 You can create a simple fleet on balena.io for free to use for testing. Simply add devices, download their configurations per Balena's documenation, and launch with QEMU. 
 Have a look at the [README in `test-utils/simulate-balena-devices` for more details](./test-util/simulate-balena-devices/README.md).
-
-#### Developing against OpenBalena
-WIP: Currently working on containerizing a test server per https://www.balena.io/open/docs/getting-started/
-
 
 ## Conduct
 Since this is an early project, there are not many formalities. Feel free to open issues for bugs, feature requests, PRs, or anything else! 

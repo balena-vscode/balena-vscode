@@ -2,7 +2,7 @@ name: Build and Publish a Pre-Release
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches: 
       - develop
@@ -17,27 +17,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2.4.0
-
-    - name: Nix Flake Build
-      uses: cachix/install-nix-action@v18
+    - uses: actions/setup-node@v3
       with:
-        nix_path: nixpkgs=channel:nixos-unstable
-        extra_nix_config: |
-          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    - run: nix build
+        node-version: 16
 
-    - name: Create Release from Artifacts
+    - name: Install dependencies and Build
+      run: |
+        npm install
+        npx vsce package patch --no-dependencies --pre-release
+
+    - name: Create Pre-Release from Artifacts
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: 'latest'
+        automatic_release_tag: 'Pre-Release'
         prerelease: true
         files: |
-          ./result/*
+          ./$VSIX_FILE_NAME
 
     - name: Publish to VSCode Marketplace & Open VSX Registry
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-    - run: npx vsce publish --packagePath ./result/$VSIX_FILE_NAME --pre-release
-    - run: npx ovsx publish --packagePath ./result/$VSIX_FILE_NAME --pre-release
+      run: |
+        npx vsce publish --packagePath ./$VSIX_FILE_NAME
+        npx ovsx publish --packagePath ./$VSIX_FILE_NAME

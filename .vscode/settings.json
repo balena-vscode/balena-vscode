@@ -1,6 +1,5 @@
 {
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true,
-    },
-    "nixEnvSelector.suggestion": false,
+    }
 }

@@ -3,9 +3,6 @@
 **/*.ts
 **/.eslintrc.json
 **/tsconfig.json
-*.nix
-.direnv
-.envrc
 .github/
 .gitignore
 .vscode-test/**
@@ -13,8 +10,8 @@
 assets/balena.svg
 assets/preview.png
 assets/vscode_dot_dev_preview.png
-flake.lock
 node_modules/
+.pnpm-store/
 out/**
 result
 src/

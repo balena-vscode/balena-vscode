@@ -7,7 +7,7 @@ export function BalenaSdkPolyfillPlugin(options?: {
         name: 'balenaSdkPolyfillPlugin',
         setup(build) {
 
-            if (options?.stream) { 
+            if (options?.stream) {
                 // Use our own 'stream' polyfill, instead of 'node-modules-polyfill', to satisfy usage of 'Buffer' api in balena-sdk
                 build.onResolve({ filter: /^stream$/ }, async () => {
                     const result = await build.resolve('stream-browserify', { resolveDir: './node_modules/' });
@@ -29,6 +29,7 @@ export function BalenaSdkPolyfillPlugin(options?: {
                 }
                 return { path: result.path, external: false };
             });
+
             // https://github.com/balena-io-modules/pinejs-client-js/blob/52f3a97dc2b5aba07090a688fcd7afa2d2d789d8/index.js#L5
             build.onResolve({ filter: /^pinejs-client-core$/ }, async () => {
                 const result = await build.resolve('pinejs-client-core/es2018', { resolveDir: './node_modules/' });

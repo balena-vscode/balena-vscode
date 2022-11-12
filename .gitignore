@@ -1,9 +1,9 @@
 node_modules/
+.pnpm-store/
 dist/
-.direnv/
-result
 .vscode/ltex*
 out/
 test/balena-nodejs-hello-world
 *.img
 *.secret
+*.vsix

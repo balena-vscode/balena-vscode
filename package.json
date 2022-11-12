@@ -23,8 +23,6 @@
 	},
 	"homepage": "https://github.com/balena-vscode/balena-vscode/blob/main/README.md",
 	"scripts": {
-		"build": "npm run package",
-		"package": "vsce package --no-dependencies --pre-release",
 		"vscode:prepublish": "npm run build-prod",
 		"build-prod": "ts-node ./esbuild.prod.ts",
 		"build-dev": "ts-node ./esbuild.dev.ts",

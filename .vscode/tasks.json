@@ -6,7 +6,9 @@
 		{
 			"type": "npm",
 			"script": "build-dev",
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": [
+				"$tsc"
+			],
 			"isBackground": false,
 			"presentation": {
 				"reveal": "never",
@@ -20,7 +22,9 @@
 		{
 			"type": "npm",
 			"script": "watch-dev",
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": [
+				"$tsc"
+			],
 			"isBackground": false,
 			"presentation": {
 				"reveal": "never",
