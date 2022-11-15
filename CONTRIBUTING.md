@@ -25,7 +25,7 @@ code --disable-extensions --extensionDevelopmentPath=./
 # 4. Done!
 
 # generate .vsix package
-npm run build
+npx vsce package --no-dependenies
 ```
 
 ### Testing
