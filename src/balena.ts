@@ -1,6 +1,6 @@
-import * as settings from '@/settings';
+import { Settings$ } from '@/settings';
 
-import { BalenaSDK, DeviceType, NavigationResource, SdkOptions, getSdk } from 'balena-sdk';
+import { BalenaSDK, DeviceType, NavigationResource, getSdk } from 'balena-sdk';
 import * as BalenaErrors from 'balena-errors';
 import { showBalenaSetupWarning } from './views/Notifications';
 
@@ -10,7 +10,6 @@ export {
   type ApplicationVariable as FleetVariable
 } from 'balena-sdk';
 
-let balenaSdk: BalenaSDK;
 /**
  * Returns an existing Balena SDK Client, or creates a new instance, configured with any user workspace options
  *
@@ -21,33 +20,11 @@ let balenaSdk: BalenaSDK;
  * @returns BalenaSDK
  */
 export const useBalenaClient = () => {
-  if (!balenaSdk) {
-    balenaSdk = getSdk(getSdkOpts());
-  }
-
+  let balenaSdk!: BalenaSDK;
+  Settings$.subscribe(settings => {
+    balenaSdk = getSdk(settings.sdkOptions);
+  }).unsubscribe();
   return balenaSdk;
-};
-
-/**
- * Loads user and workspaces settings from the environment and returns an SdkOptions object
- * to be used for creating a BalenaSDK client
- *
- * @returns SdkOptions
- */
-export const getSdkOpts = () => {
-  const options: SdkOptions = {};
-
-  const dataDirectory = settings.getBalenaSdkDataDirectory();
-  if (dataDirectory) {
-    options.dataDirectory = dataDirectory;
-  }
-
-  const apiUrl = settings.getBalenaSdkApiUrl();
-  if (apiUrl) {
-    options.apiUrl = apiUrl;
-  }
-
-  return options;
 };
 
 /**

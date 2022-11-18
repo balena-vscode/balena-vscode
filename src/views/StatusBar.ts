@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as settings from '@/settings';
+import { Settings$ } from '@/settings';
 import { BehaviorSubject } from 'rxjs';
 import { Application as Fleet, getFleetById, getFleets, useBalenaClient } from '@/balena';
 import { CommandId } from '@/commands';
@@ -10,7 +10,17 @@ export const registerView = async (context: vscode.ExtensionContext) => {
   fleetStatusItem = createFleetStatusItem();
   context.subscriptions.push(fleetStatusItem);
 
-  SelectedFleet$.next(await getInitialFleet() ?? undefined);
+  let intervalHandle: ReturnType<typeof setInterval>;
+  Settings$.subscribe(async settings => {
+    if (intervalHandle) {
+      clearInterval(intervalHandle);
+    }
+
+    await initializeFleet(settings.defaultFleet);
+    intervalHandle = setInterval(async() => 
+      await initializeFleet(settings.defaultFleet)
+    , settings.fleetRefreshInterval);
+  });
   SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet?.slug ?? 'None'));
 };
 
@@ -31,14 +41,12 @@ export const showSelectFleet = async () => {
   return selectedFleetId;
 };
 
-const getInitialFleet = async () => {
+const initializeFleet = async (fleetId?: string) => {
   const balena = useBalenaClient();
-  const userDefault = settings.getDefaultFleet();
-  if(userDefault) {
-    return await getFleetById(balena, userDefault);
+  if (fleetId) {
+    SelectedFleet$.next(await getFleetById(balena, fleetId) ?? undefined);
   } else {
-    const fleets = await getFleets(balena) ?? [];
-    return fleets[0];
+    SelectedFleet$.next((await getFleets(balena) ?? [])[0]);
   }
 };
 

@@ -114,22 +114,22 @@
 				"category": "Balena Fleet Explorer"
 			},
 			{
+				"command": "balena-vscode.refreshFleet",
+				"title": "Refresh Fleet",
+				"category": "Balena Fleet Explorer",
+				"icon": "$(refresh)"
+			},
+			{
 				"command": "balena-vscode.inspectDevice",
 				"title": "Inspect Device",
 				"category": "Balena Device Inspector",
-				"icon": {
-					"dark": "$(inspect)",
-					"light": "$(inspect)"
-				}
+				"icon": "$(inspect)"
 			},
 			{
 				"command": "balena-vscode.openSSHConnectionInTerminal",
 				"title": "Open SSH in Terminal",
 				"category": "Balena Device Inspector",
-				"icon": {
-					"dark": "$(terminal)",
-					"light": "$(terminal)"
-				}
+				"icon": "$(terminal)"
 			},
 			{
 				"command": "balena-vscode.copyItemToClipboard",
@@ -179,6 +179,13 @@
 					"when": "false"
 				}
 			],
+			"view/title": [
+				{
+				  "command": "balena-vscode.refreshFleet",
+				  "when": "view == fleetExplorer || view == deviceInspector",
+				  "group": "navigation"
+				}
+			  ],
 			"view/item/context": [
 				{
 					"command": "balena-vscode.copyItemToClipboard",
@@ -215,6 +222,36 @@
 					"group": "navigation"
 				}
 			]
+		},
+		"configuration": {
+			"title": "Balena VSCode (Unofficial)",
+			"properties": {
+				"balena-vscode.sdkOptions": {
+					"type": "object",
+					"properties": {
+						"apiUrl": {
+							"type": "string",
+							"default": "https://api.balena-cloud.com/",
+							"description": "Balena API endpoint to use for SDK requests"
+						},
+						"dataDirectory": {
+							"type": "string",
+							"default": "~/.balena",
+							"description": "Balena SDK settings directory for the current user (only available for Desktop VSCode)"
+						}
+					}
+				},
+				"balena-vscode.defaultFleet": {
+					"type": "string",
+					"default": null,
+					"description": "Default fleet to use on load"
+				},
+				"balena-vscode.fleetRefreshInterval": {
+					"type": "number",
+					"default": 60000,
+					"description": "How often Fleet data should be refreshed in seconds"
+				}
+			}
 		}
 	},
 	"dependencies": {

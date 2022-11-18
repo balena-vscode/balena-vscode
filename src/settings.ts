@@ -1,20 +1,21 @@
+import { BehaviorSubject } from 'rxjs';
 import * as vscode from 'vscode';
+import { SdkOptions } from '@/balena';
+import { showInfoMsg } from './views/Notifications';
 
 
+interface Settings {
+  readonly sdkOptions?: SdkOptions,
+  readonly defaultFleet?: string,
+  readonly fleetRefreshInterval?: number
+}
 
-const balenaSdkOptionsConfigUri = 'sdkOptions';
-const dataDirectoryConfigUri = 'dataDirectory';
-export const getBalenaSdkDataDirectory = () =>
-  vscode.workspace.getConfiguration(balenaSdkOptionsConfigUri).get<string>(dataDirectoryConfigUri);
-export const setBalenaSdkDataDirectory = (value: string) =>
-  vscode.workspace.getConfiguration(balenaSdkOptionsConfigUri).update(dataDirectoryConfigUri, value);
+const getWorkspaceConfiguration = (): Settings => vscode.workspace.getConfiguration('balena-vscode') as Settings;
+vscode.workspace.onDidChangeConfiguration(changes => {
+  if(changes.affectsConfiguration('balena-vscode')) {
+    showInfoMsg("Settings Updated");
+    Settings$.next(getWorkspaceConfiguration());
+  }
+});
 
-const apiUrlConfigUrl = 'apiUrl';
-export const getBalenaSdkApiUrl = () =>
-  vscode.workspace.getConfiguration(balenaSdkOptionsConfigUri).get<string>(apiUrlConfigUrl);
-export const setBalenaSdkApiUrl = (value: string) =>
-  vscode.workspace.getConfiguration(balenaSdkOptionsConfigUri).update(apiUrlConfigUrl, value);
-
-const defaultFleetConfigUri = 'defaultFleet';
-export const getDefaultFleet = () => vscode.workspace.getConfiguration().get<string>(defaultFleetConfigUri);
-export const setDefaultFleet = (value: string) => vscode.workspace.getConfiguration().update(defaultFleetConfigUri, value, vscode.ConfigurationTarget.WorkspaceFolder);
+export const Settings$ = new BehaviorSubject<Settings>(getWorkspaceConfiguration());

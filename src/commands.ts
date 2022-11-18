@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getDeviceWithServices, isLoggedIn, useBalenaClient } from '@/balena';
 import { showLoginOptions } from '@/views/Authentication';
-import { showSelectFleet } from '@/views/StatusBar';
+import { SelectedFleet$, showSelectFleet } from '@/views/StatusBar';
 import { showInfoMsg, showWarnMsg } from '@/views/Notifications';
 import { ViewId as DeviceInspectorViewIds, SelectedDevice$, showSelectDeviceInput } from '@/views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
@@ -20,6 +20,7 @@ export enum CommandId {
   CopyNameToClipboard = 'balena-vscode.copyNameToClipboard',
   CopyUUIDToClipboard = 'balena-vscode.copyUUIDToClipboard',
   OpenLogsInNewTab = 'balena-vscode.openLogsInNewTab',
+  RefreshFleet = 'balena-vscode.refreshFleet'
 }
 
 export const registerCommands = (context: vscode.ExtensionContext) => {
@@ -33,6 +34,7 @@ export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyNameToClipboard, copyNameToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyUUIDToClipboard, copyUUIDToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenLogsInNewTab, openLogsInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.RefreshFleet, refreshFleet));
 };
 
 export const loginToBalenaCloud = async () => {
@@ -104,4 +106,10 @@ const copyToClipboard = async (value: string) => {
 export const openLogsInNewTab = async (device: DeviceItem) => {
   const uri = vscode.Uri.parse(DEVICE_LOG_URI_SCHEME.concat(':', device.name, '#', device.uuid));
   await vscode.window.showTextDocument(uri, { preview: true });
+};
+
+export const refreshFleet = () => {
+  let fleet;
+  SelectedFleet$.subscribe(f => fleet = f).unsubscribe();
+  SelectedFleet$.next(fleet);
 };
