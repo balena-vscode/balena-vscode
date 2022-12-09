@@ -5,9 +5,10 @@ import { SelectedFleet$, showSelectFleet } from '@/views/StatusBar';
 import { showInfoMsg, showWarnMsg } from '@/views/Notifications';
 import { ViewId as DeviceInspectorViewIds, SelectedDevice$, showSelectDeviceInput } from '@/views/DeviceInspector';
 import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
-import { DEVICE_LOG_URI_SCHEME, DeviceItem, DeviceStatus, ReleaseItem } from '@/providers';
+import { DEVICE_LOG_URI_SCHEME, DeviceItem, DeviceStatus, ReleaseItem, ImageItem, BUILD_LOG_URI_SCHEME } from '@/providers';
 import { createBalenaSSHTerminal } from './views/Terminal';
 import { KeyValueItem } from './providers/sharedItems';
+import { COMPOSEFILE_URI_SCHEME, CONTAINERFILE_URI_SCHEME } from './providers/containerfiles';
 
 export enum CommandId {
   LoginToBalenaCloud = 'balena-vscode.loginToBalenaCloud',
@@ -20,6 +21,9 @@ export enum CommandId {
   CopyNameToClipboard = 'balena-vscode.copyNameToClipboard',
   CopyUUIDToClipboard = 'balena-vscode.copyUUIDToClipboard',
   OpenLogsInNewTab = 'balena-vscode.openLogsInNewTab',
+  OpenBuildLogsInNewTab = 'balena-vscode.openBuildLogsInNewTab',
+  OpenContainerfileInNewTab = 'balena-vscode.openContainerfileInNewTab',
+  OpenComposefileInNewTab = 'balena-vscode.openComposefileInNewTab',
   RefreshFleet = 'balena-vscode.refreshFleet'
 }
 
@@ -34,6 +38,9 @@ export const registerCommands = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyNameToClipboard, copyNameToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyUUIDToClipboard, copyUUIDToClipboard));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenLogsInNewTab, openLogsInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenBuildLogsInNewTab, openBuildLogsInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenContainerfileInNewTab, openContainerfileInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenComposefileInNewTab, openComposefileInNewTab));
   context.subscriptions.push(vscode.commands.registerCommand(CommandId.RefreshFleet, refreshFleet));
 };
 
@@ -94,17 +101,57 @@ export const focusDeviceInspector = () => vscode.commands.executeCommand(`${Devi
 export const focusFleetExplorer = () => vscode.commands.executeCommand(`${FleetExplorerViewIds.Devices}.focus`);
 
 export const copyItemToClipboard = async (item: vscode.TreeItem) => await copyToClipboard(item.label as string);
-export const copyItemKeyToClipboard = async (item: KeyValueItem) => await  copyToClipboard(item.key);
+export const copyItemKeyToClipboard = async (item: KeyValueItem) => await copyToClipboard(item.key);
 export const copyItemValueToClipboard = async (item: KeyValueItem) => await copyToClipboard(item.value);
 export const copyNameToClipboard = async (item: DeviceItem | ReleaseItem) => await copyToClipboard(item.name);
 export const copyUUIDToClipboard = async (item: DeviceItem | ReleaseItem) => await copyToClipboard(item.uuid);
-const copyToClipboard = async (value: string) => {
+const copyToClipboard = async (value?: string) => {
   showInfoMsg(`Clipboard copied: ${value}`);
-  await vscode.env.clipboard.writeText(value.toString());
+  await vscode.env.clipboard.writeText(value?.toString() ?? "");
 };
 
 export const openLogsInNewTab = async (device: DeviceItem) => {
-  const uri = vscode.Uri.parse(DEVICE_LOG_URI_SCHEME.concat(':', device.name, '#', device.uuid));
+  const uri = vscode.Uri.parse("".concat(
+    `${DEVICE_LOG_URI_SCHEME}:`,
+    `${device.name}`,
+    `#${device.uuid}`
+  ));
+  await vscode.window.showTextDocument(uri, { preview: true });
+};
+
+export const openBuildLogsInNewTab = async (item: ReleaseItem | ImageItem) => {
+  let uri: vscode.Uri;
+  if (item instanceof ImageItem) {
+    uri = vscode.Uri.parse("".concat(
+      `${BUILD_LOG_URI_SCHEME}:`,
+      `[${item.parentReleaseName}] ${item.name}.log`,
+      `?${encodeURIComponent(item.buildLog)}`
+    ));
+  } else {
+    uri = vscode.Uri.parse("".concat(
+      `${BUILD_LOG_URI_SCHEME}:`,
+      `${item.name}.log`,
+      `?${encodeURIComponent(item.buildLog)}`
+    ));
+  }
+  await vscode.window.showTextDocument(uri, { preview: true });
+};
+
+export const openContainerfileInNewTab = async (image: ImageItem) => {
+  const uri = vscode.Uri.parse("".concat(
+    `${CONTAINERFILE_URI_SCHEME}:`,
+    `[${image.parentReleaseName}] ${image.name}.containerfile`,
+    `?${encodeURIComponent(image.containerfile)}`
+  ));
+  await vscode.window.showTextDocument(uri, { preview: true });
+};
+
+export const openComposefileInNewTab = async (release: ReleaseItem) => {
+  const uri = vscode.Uri.parse("".concat(
+    `${COMPOSEFILE_URI_SCHEME}:`,
+    `${release.name}.yml`,
+    `?${encodeURIComponent(release.composefile)}`
+  ));
   await vscode.window.showTextDocument(uri, { preview: true });
 };
 

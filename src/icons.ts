@@ -1,18 +1,21 @@
 import * as vscode from 'vscode';
 
 export const BoolenIcon = new vscode.ThemeIcon('symbol-boolean');
+export const ServiceDefinitionIcon = new vscode.ThemeIcon('file-code');
 export const CpuIcon = new vscode.ThemeIcon('server-environment');
 export const DateTimeIcon = new vscode.ThemeIcon('calendar');
 export const DesiredStateIcon = new vscode.ThemeIcon('target');
 export const DeviceHeartbeatOnlyIcon = new vscode.ThemeIcon('pulse', new vscode.ThemeColor('list.warningForeground'));
 export const DeviceOfflineIcon = new vscode.ThemeIcon('debug-disconnect');
 export const DeviceOnlineIcon = new vscode.ThemeIcon('broadcast', new vscode.ThemeColor('testing.iconPassed'));
+export const DurationIcon = new vscode.ThemeIcon('watch');
 export const InProgressIcon = new vscode.ThemeIcon('loading~spin');
 export const LocationIcon = new vscode.ThemeIcon('location');
 export const LogIcon = new vscode.ThemeIcon('notebook');
 export const MemoryIcon = new vscode.ThemeIcon('save');
 export const NetworkAddressIcon = new vscode.ThemeIcon('globe');
 export const NoteIcon = new vscode.ThemeIcon('note');
+export const PersonIcon = new vscode.ThemeIcon('person');
 export const PowerIcon = new vscode.ThemeIcon('zap');
 export const ReleaseCanceledIcon = new vscode.ThemeIcon('circle-slash', new vscode.ThemeColor('list.warningForeground'));
 export const ReleaseFailedIcon = new vscode.ThemeIcon('error', new vscode.ThemeColor('list.errorForeground'));

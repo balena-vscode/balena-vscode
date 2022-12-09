@@ -1,14 +1,16 @@
-import { Settings$ } from '@/settings';
-
 import { BalenaSDK, DeviceType, NavigationResource, getSdk } from 'balena-sdk';
 import * as BalenaErrors from 'balena-errors';
-import { showBalenaSetupWarning } from './views/Notifications';
+import { showBalenaSetupWarning } from '@/views/Notifications';
+import { getWorkspaceConfiguration, Settings$ } from '@/settings'
 
 export * from 'balena-sdk';
 export {
   type Application as Fleet,
   type ApplicationVariable as FleetVariable
 } from 'balena-sdk';
+
+let balenaSdk: BalenaSDK;
+Settings$.subscribe(() => balenaSdk = getSdk(getWorkspaceConfiguration().sdkOptions));
 
 /**
  * Returns an existing Balena SDK Client, or creates a new instance, configured with any user workspace options
@@ -19,13 +21,7 @@ export {
  *
  * @returns BalenaSDK
  */
-export const useBalenaClient = () => {
-  let balenaSdk!: BalenaSDK;
-  Settings$.subscribe(settings => {
-    balenaSdk = getSdk(settings.sdkOptions);
-  }).unsubscribe();
-  return balenaSdk;
-};
+export const useBalenaClient = () => balenaSdk;
 
 /**
  * Returns true if login is successful
@@ -85,7 +81,7 @@ export const getFleetEnvVariables = async (balenaSdk: BalenaSDK, fleetId: string
 export const getFleetReleases = async (balenaSdk: BalenaSDK, fleetId: string | number) => await balenaSdk.models.release.getAllByApplication(fleetId).catch(sdkErrHandler);
 export const getFleetReleaseById = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.get(releaseId).catch(sdkErrHandler);
 export const getFleetReleaseWithImageDetails = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.getWithImageDetails(releaseId).catch(sdkErrHandler);
-export const getFleetReleaseImage = async (balenaSdk: BalenaSDK, imageId: number) => await balenaSdk.models.image.get(imageId).catch(sdkErrHandler);
+export const getFleetReleaseImage = async (balenaSdk: BalenaSDK, imageId: number) => await balenaSdk.models.image.get(imageId, { $select: ["build_log", "content_hash", "dockerfile", "id", "image_size", "error_message"], $expand: { is_a_build_of__service: { $select: ["service_name"] }}}).catch(sdkErrHandler);
 export const getFleetReleaseTags = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.tags.getAllByRelease(releaseId).catch(sdkErrHandler);
 
 const sdkErrHandler = async (e: BalenaErrors.BalenaError) => {

@@ -9,6 +9,7 @@ type Subscriptions = {
 };
 
 export const DEVICE_LOG_URI_SCHEME = "deviceLogs";
+export const BUILD_LOG_URI_SCHEME = "buildLogs"
 
 export class LogsProvider implements vscode.TextDocumentContentProvider {
     onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
@@ -46,5 +47,17 @@ export class LogsProvider implements vscode.TextDocumentContentProvider {
         }
 
         return this.subscriptions[uriString]?.content ?? '';
+    }
+}
+
+export class BuildLogsProvider implements vscode.TextDocumentContentProvider {
+    onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+    onDidChange = this.onDidChangeEmitter.event;
+
+    constructor() {}
+
+    provideTextDocumentContent(uri: vscode.Uri) { 
+        const buildLogContent = decodeURIComponent(uri.query);
+        return buildLogContent;
     }
 }

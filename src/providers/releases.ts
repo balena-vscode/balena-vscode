@@ -1,21 +1,36 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, DeviceTag, Release as FleetRelease, Image, Release, ReleaseTag, ReleaseWithImageDetails, getFleetReleaseImage, getFleetReleaseTags, getFleetReleaseWithImageDetails, getFleetReleases, shortenUUID } from '@/balena';
 import {
+  BalenaSDK,
+  DeviceTag,
+  Image,
+  Release as FleetRelease,
+  Release,
+  ReleaseTag,
+  getFleetReleaseImage,
+  getFleetReleaseTags,
+  getFleetReleaseWithImageDetails,
+  getFleetReleases,
+  shortenUUID,
+  ReleaseWithImageDetails,
+} from '@/balena';
+import {
+  ServiceDefinitionIcon,
+  DurationIcon,
+  PersonIcon,
   ReleaseCanceledIcon,
   ReleaseFailedIcon,
   ReleaseFinalizedIcon,
   ReleaseValidIcon,
   TagIcon,
-  TextIcon,
   UnknownIcon,
 } from '@/icons';
-
+import { KeyValueItem } from './sharedItems';
+import { stringify } from 'yaml';
+import stripAnsi from 'strip-ansi';
 
 export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | void>();
   readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | void> = this._onDidChangeTreeData.event;
-
-  private selectedReleaseDetails: ReleaseWithImageDetails | undefined;
 
   constructor(private balenaSdk: BalenaSDK, private fleetId: string | number) { }
 
@@ -27,15 +42,15 @@ export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem
     return element;
   }
 
-  getChildren(element?: ReleaseItem): Thenable<ReleaseItem[] | vscode.TreeItem[]> {
+  getChildren(element?: ReleaseItem | BuildDetails | ServiceDefinitions | ReleaseTags): Thenable<vscode.TreeItem[]> {
     if (element) {
-      switch (element.label) {
-        case "images":
-          return Promise.resolve(this.getImages());
-        case "tags":
-          return Promise.resolve(this.getTags());
+      switch (element.contextValue) {
+        case "buildDetails":
+        case "serviceDefinitions":
+        case "releaseTags":
+          return Promise.resolve((element as BuildDetails | ServiceDefinitions | ReleaseTags).items);
         default:
-          return Promise.resolve(this.initializeReleaseDetails(element.uuid));
+          return Promise.resolve(this.getReleaseDetails((element as ReleaseItem)));
       }
     } else {
       return Promise.resolve(this.getAllReleases());
@@ -48,36 +63,16 @@ export class ReleasesProvider implements vscode.TreeDataProvider<vscode.TreeItem
       new ReleaseItem(`${r.semver}+rev${r.revision}`, vscode.TreeItemCollapsibleState.Collapsed, r));
   }
 
-  private async initializeReleaseDetails(releaseId: string): Promise<vscode.TreeItem[]> {
-    this.selectedReleaseDetails = await getFleetReleaseWithImageDetails(this.balenaSdk, releaseId) ?? undefined;
+  private async getReleaseDetails(release: ReleaseItem): Promise<vscode.TreeItem[]> {
+    const buildDetails = await getFleetReleaseWithImageDetails(this.balenaSdk, release.uuid) ?? undefined;
+    const serviceDefinitions = await Promise.all(buildDetails?.images.map(async i => await getFleetReleaseImage(this.balenaSdk, i.id) as Image) ?? []);
+    const tags = await getFleetReleaseTags(this.balenaSdk, release.uuid) ?? [];
+
     return [
-      new vscode.TreeItem("images", vscode.TreeItemCollapsibleState.Collapsed),
-      new vscode.TreeItem("tags", vscode.TreeItemCollapsibleState.Collapsed),
+      new BuildDetails("details", vscode.TreeItemCollapsibleState.Collapsed, buildDetails),
+      new ServiceDefinitions("services", vscode.TreeItemCollapsibleState.Collapsed, release.name, serviceDefinitions),
+      new ReleaseTags("tags", vscode.TreeItemCollapsibleState.Collapsed, tags),
     ];
-  }
-
-  private async getImages(): Promise<ImageItem[]> {
-    if (this.selectedReleaseDetails) {
-      const items = [];
-      for (const i of this.selectedReleaseDetails.images) {
-        const image = await getFleetReleaseImage(this.balenaSdk, i.id);
-        if(image) {
-          items.push(new ImageItem(image));
-        }
-      }
-      return items;
-    } else {
-      return [];
-    }
-  }
-
-  private async getTags(): Promise<TagItem[]> {
-    if (this.selectedReleaseDetails) {
-      const tags = await getFleetReleaseTags(this.balenaSdk, this.selectedReleaseDetails.id) ?? [];
-      return tags.map(t => new TagItem(t));
-    } else {
-      return [];
-    }
   }
 }
 
@@ -96,11 +91,13 @@ export class ReleaseItem extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
     this.description = shortenUUID(this.release.commit);
-    this.setup();
+    this.setStatus();
   }
 
+  public get buildLog() { return this.release.build_log ?? 'No build logs found'; }
   public get name() { return this.label; }
   public get uuid() { return this.release.commit; }
+
   public get status() {
     const status = this.release.status;
     if (status === "success" && this.release.is_final) {
@@ -116,7 +113,13 @@ export class ReleaseItem extends vscode.TreeItem {
     }
   }
 
-  private setup() {
+  public get composefile() {
+    const composition = this.release.composition;
+    const json2yaml = stringify(composition);
+    return json2yaml;
+  }
+
+  private setStatus() {
     switch (this.status) {
       case ReleaseStatus.Finalized:
         this.tooltip = `Finalized at ${this.release.is_finalized_at__date}`;
@@ -144,26 +147,97 @@ export class ReleaseItem extends vscode.TreeItem {
   contextValue = 'release';
 }
 
-export class ImageItem extends vscode.TreeItem {
+export class BuildDetails extends vscode.TreeItem {
   constructor(
-    public readonly image: Image
+    public readonly label: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    private readonly details: ReleaseWithImageDetails | undefined
   ) {
-    super(image.content_hash ?? 'No Hash');
-    this.iconPath = TextIcon;
+    super(label, collapsibleState);
   }
+
+  public get items() {
+    if (this.details) {
+      const buildDurationInSeconds = (new Date(this.details.end_timestamp as string).getTime()
+        - new Date(this.details.start_timestamp as string).getTime())
+        / 1000;
+
+      return [
+        new KeyValueItem('created by', this.details.user?.username, PersonIcon),
+        new KeyValueItem('build duration', buildDurationInSeconds.toString(), DurationIcon),
+      ]
+    } else {
+      return [new vscode.TreeItem("Could not fetch build details")]
+    }
+  }
+
+  contextValue = "buildDetails";
 }
 
-export class TagItem extends vscode.TreeItem {
+export class ServiceDefinitions extends vscode.TreeItem {
   constructor(
-    public readonly tag: ReleaseTag | DeviceTag
+    public readonly label: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parentReleaseName: string,
+    private readonly images: Image[]
   ) {
-    super(`${tag.tag_key}: ${tag.value}`);
-    this.iconPath = TagIcon;
-    this.tooltip = "Click to Copy Value";
-    this.command = {
-      command: 'editor.action.clipboardCopyAction',
-      title: '',
-      arguments: [tag.value]
-    };
+    super(label, collapsibleState);
   }
+
+  public get items() {
+    return this.images?.map(i => {
+      const serviceName = (i.is_a_build_of__service as any)[0].service_name;
+      return new ImageItem(serviceName, i.image_size, this.parentReleaseName, i);
+    });
+  };
+
+  contextValue = 'serviceDefinitions';
+}
+
+export class ReleaseTags extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    private readonly tags: ReleaseTag[] | DeviceTag[]
+  ) {
+    super(label, collapsibleState);
+  }
+
+  public get items() {
+    return this.tags?.map(t =>
+      new KeyValueItem(t.tag_key, t.value, TagIcon)
+    )
+  };
+
+  contextValue = 'releaseTags';
+}
+
+export class ImageItem extends vscode.TreeItem {
+  constructor(
+    public readonly name: string,
+    public readonly size: number | null | undefined,
+    public readonly parentReleaseName: string,
+    private readonly image: Image
+  ) {
+    super(name);
+    this.iconPath = ServiceDefinitionIcon;
+    this.description = size ? this.getHumanFriendlyImageSize(size) : "";
+  }
+
+  public get imageId() { return this.image.id }
+  public get buildLog() { return stripAnsi(this.image.build_log) }
+  public get containerfile() { return this.image.dockerfile }
+
+  private getHumanFriendlyImageSize(size: number) {
+    const bytesToMB = size / 1024 / 1024;
+
+    if (bytesToMB < 1024) {
+      return `${bytesToMB.toFixed(2)}MB`
+    } else {
+      const mbToGB = bytesToMB / 1024;
+      return `${mbToGB.toFixed(2)}GB`
+    }
+  }
+
+  contextValue = 'imageItem';
 }

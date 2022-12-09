@@ -21,6 +21,7 @@ export const registerView = async (context: vscode.ExtensionContext) => {
       await initializeFleet(settings.defaultFleet)
     , settings.fleetRefreshInterval);
   });
+
   SelectedFleet$.subscribe(fleet => updateFleetStatusItemText(fleet?.slug ?? 'None'));
 };
 

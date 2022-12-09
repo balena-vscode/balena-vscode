@@ -14,7 +14,7 @@ export class CopiableItem extends vscode.TreeItem {
 export class KeyValueItem extends vscode.TreeItem {
     constructor(
         public readonly key: string,
-        public readonly value: string,
+        public readonly value?: string,
         private readonly icon?: vscode.ThemeIcon | null
     ) {
         super(`${key}: ${value}`);
