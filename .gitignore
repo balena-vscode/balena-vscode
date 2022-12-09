@@ -7,3 +7,4 @@ test/balena-nodejs-hello-world
 *.img
 *.secret
 *.vsix
+.DS_Store

@@ -28,7 +28,8 @@
 		"build-dev": "ts-node ./esbuild.dev.ts",
 		"watch-prod": "npm run build-prod -- --watch",
 		"watch-dev": "npm run build-dev -- --watch",
-		"lint": "eslint src --ext ts"
+		"lint": "eslint src --ext ts",
+		"simulate-balena-devices-qemu": "ts-node ./test-util/simulate-balena-devices/run.ts"
 	},
 	"activationEvents": [
 		"onView:fleetDevices",
