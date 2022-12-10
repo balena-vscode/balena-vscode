@@ -24,7 +24,7 @@ import {
   TagIcon,
   UnknownIcon,
 } from '@/icons';
-import { KeyValueItem } from './sharedItems';
+import { CopiableItem, KeyValueItem } from './sharedItems';
 import { stringify } from 'yaml';
 import stripAnsi from 'strip-ansi';
 
@@ -158,17 +158,25 @@ export class BuildDetails extends vscode.TreeItem {
 
   public get items() {
     if (this.details) {
-      const buildDurationInSeconds = (new Date(this.details.end_timestamp as string).getTime()
-        - new Date(this.details.start_timestamp as string).getTime())
-        / 1000;
+      const buildCreator = new CopiableItem(this.details.user?.username ?? "unknown", "creator", PersonIcon);
+      const buildDuration = new CopiableItem(this.getHumanFriendlyDuration(this.details), "build duration", DurationIcon);
 
       return [
-        new KeyValueItem('created by', this.details.user?.username, PersonIcon),
-        new KeyValueItem('build duration', buildDurationInSeconds.toString(), DurationIcon),
+        buildCreator,
+        buildDuration
       ]
     } else {
       return [new vscode.TreeItem("Could not fetch build details")]
     }
+  }
+  
+  private getHumanFriendlyDuration(details: ReleaseWithImageDetails) {
+      const buildDurationInSeconds = (new Date(details.end_timestamp as string).getTime()
+        - new Date(details.start_timestamp as string).getTime())
+        / 1000;
+      
+      const labelHHMMSS = new Date(buildDurationInSeconds * 1000).toISOString().substring(11,19);
+      return labelHHMMSS;
   }
 
   contextValue = "buildDetails";

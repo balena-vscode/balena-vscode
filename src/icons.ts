@@ -9,6 +9,7 @@ export const DeviceHeartbeatOnlyIcon = new vscode.ThemeIcon('pulse', new vscode.
 export const DeviceOfflineIcon = new vscode.ThemeIcon('debug-disconnect');
 export const DeviceOnlineIcon = new vscode.ThemeIcon('broadcast', new vscode.ThemeColor('testing.iconPassed'));
 export const DurationIcon = new vscode.ThemeIcon('watch');
+export const InfoIcon = new vscode.ThemeIcon('info');
 export const InProgressIcon = new vscode.ThemeIcon('loading~spin');
 export const LocationIcon = new vscode.ThemeIcon('location');
 export const LogIcon = new vscode.ThemeIcon('notebook');

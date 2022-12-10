@@ -4,6 +4,7 @@ import {
   DeviceHeartbeatOnlyIcon,
   DeviceOfflineIcon,
   DeviceOnlineIcon,
+  InfoIcon,
 } from '@/icons';
 import { CopiableItem } from './sharedItems';
 
@@ -40,14 +41,9 @@ export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | vsc
   }
 
   private async getDeviceDetails(device: DeviceItem): Promise<vscode.TreeItem[]> {
-    const osDetails = new CopiableItem(device.osDetails);
-    osDetails.description = "os version";
-
-    const supervisorVersionDetails = new CopiableItem(device.supervisorDetails);
-    supervisorVersionDetails.description = "supervisor version";
-
-    const lastOnlineDetails = new CopiableItem(device.lastOnlineDetails);
-    lastOnlineDetails.description = "last online";
+    const osDetails = new CopiableItem(device.osDetails, "os version", InfoIcon);
+    const supervisorVersionDetails = new CopiableItem(device.supervisorDetails, "supervisor version", InfoIcon);
+    const lastOnlineDetails = new CopiableItem(device.lastOnlineDetails, "last online", InfoIcon);
 
     return [
       osDetails,

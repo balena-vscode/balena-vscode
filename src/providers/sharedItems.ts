@@ -3,9 +3,13 @@ import * as vscode from 'vscode';
 
 export class CopiableItem extends vscode.TreeItem {
     constructor(
-        public readonly label: string
+        public readonly label: string,
+        private readonly desc: string,
+        private readonly icon?: vscode.ThemeIcon | null
     ) {
         super(label);
+        this.description = desc;
+        this.iconPath = this.icon ?? undefined;
     }
 
     contextValue = "copiableItem";
