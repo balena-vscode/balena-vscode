@@ -66,13 +66,8 @@ export const getDeviceById = async (balenaSdk: BalenaSDK, deviceId: string | num
 export const getDeviceIds = async (balenaSdk: BalenaSDK, fleetId: string) => await balenaSdk.models.device.getAllByApplication(fleetId, { $select: ["device_name", "uuid"] }).catch(sdkErrHandler);
 export const getDeviceEnvVariables = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.envVar.getAllByDevice(deviceId).catch(sdkErrHandler);
 export const getDeviceConfigVariables = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.configVar.getAllByDevice(deviceId).catch(sdkErrHandler);
-export const getDeviceWithServices = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.getWithServiceDetails(deviceId).catch(sdkErrHandler);
-export const getDeviceType = async (balenaSdk: BalenaSDK, isOfDeviceType: NavigationResource<DeviceType>) => {
-  // Get the device type id from private members
-  const deviceTypeId = Object.values(isOfDeviceType)[0];
-  return await balenaSdk.models.deviceType.get(deviceTypeId).catch(sdkErrHandler);
-};
-
+export const getDeviceWithServiceDetails = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.getWithServiceDetails(deviceId, { $expand: { is_of__device_type: { $select: ["name"] }, is_running__release: { $select: ["commit"] }, device_tag: { $select: ["device", "id", "tag_key", "value"]}}}).catch(sdkErrHandler);
+export const getDevicePublicURL = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.getDeviceUrl(deviceId).catch(sdkErrHandler);
 
 export const getFleets = async (balenaSdk: BalenaSDK) => await balenaSdk.models.application.getAllDirectlyAccessible({ $select: ["slug"] }).catch(sdkErrHandler);
 export const getFleetById = async (balenaSdk: BalenaSDK, fleetId: string | number) => await balenaSdk.models.application.get(fleetId).catch(sdkErrHandler);
@@ -81,7 +76,7 @@ export const getFleetEnvVariables = async (balenaSdk: BalenaSDK, fleetId: string
 export const getFleetReleases = async (balenaSdk: BalenaSDK, fleetId: string | number) => await balenaSdk.models.release.getAllByApplication(fleetId).catch(sdkErrHandler);
 export const getFleetReleaseById = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.get(releaseId).catch(sdkErrHandler);
 export const getFleetReleaseWithImageDetails = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.getWithImageDetails(releaseId).catch(sdkErrHandler);
-export const getFleetReleaseImage = async (balenaSdk: BalenaSDK, imageId: number) => await balenaSdk.models.image.get(imageId, { $select: ["build_log", "content_hash", "dockerfile", "id", "image_size", "error_message"], $expand: { is_a_build_of__service: { $select: ["service_name"] }}}).catch(sdkErrHandler);
+export const getFleetReleaseImage = async (balenaSdk: BalenaSDK, imageId: number) => await balenaSdk.models.image.get(imageId, { $select: ["build_log", "content_hash", "dockerfile", "id", "image_size", "error_message"], $expand: { is_a_build_of__service: { $select: ["service_name"] } } }).catch(sdkErrHandler);
 export const getFleetReleaseTags = async (balenaSdk: BalenaSDK, releaseId: string | number) => await balenaSdk.models.release.tags.getAllByRelease(releaseId).catch(sdkErrHandler);
 
 const sdkErrHandler = async (e: BalenaErrors.BalenaError) => {

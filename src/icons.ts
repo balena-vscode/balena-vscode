@@ -15,6 +15,7 @@ export const LocationIcon = new vscode.ThemeIcon('location');
 export const LogIcon = new vscode.ThemeIcon('notebook');
 export const MemoryIcon = new vscode.ThemeIcon('save');
 export const NetworkAddressIcon = new vscode.ThemeIcon('globe');
+export const PrivateNetworkAddressIcon = new vscode.ThemeIcon('shield');
 export const NoteIcon = new vscode.ThemeIcon('note');
 export const PersonIcon = new vscode.ThemeIcon('person');
 export const PowerIcon = new vscode.ThemeIcon('zap');
@@ -26,9 +27,11 @@ export const ServiceRunningIcon = new vscode.ThemeIcon('debug-start');
 export const ServiceStoppedIcon = new vscode.ThemeIcon('debug-stop');
 export const StorageIcon = new vscode.ThemeIcon('server');
 export const TagIcon = new vscode.ThemeIcon('tag');
+export const TargetIcon = new vscode.ThemeIcon('target');
 export const TextIcon = new vscode.ThemeIcon('symbol-text');
 export const UnknownIcon = new vscode.ThemeIcon('question');
 export const VariableIcon = new vscode.ThemeIcon('variable');
+export const VersionsIcon = new vscode.ThemeIcon('versions');
 
 export const computeIconBasedOnLabelRegex = (label: string) => {
     if (/created_at|last_.*_event|timestamp|modified_at/.test(label)) {

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getDeviceWithServices, isLoggedIn, useBalenaClient } from '@/balena';
+import { getDeviceWithServiceDetails, isLoggedIn, useBalenaClient } from '@/balena';
 import { showLoginOptions } from '@/views/Authentication';
 import { SelectedFleet$, showSelectFleet } from '@/views/StatusBar';
 import { showInfoMsg, showWarnMsg } from '@/views/Notifications';
@@ -61,14 +61,14 @@ export const selectActiveFleet = async () => {
 export const inspectDevice = async (device?: DeviceItem) => {
   const balena = useBalenaClient();
   if (device) {
-    const deviceWithServices = await getDeviceWithServices(balena, device.uuid) ?? undefined;
+    const deviceWithServices = await getDeviceWithServiceDetails(balena, device.uuid) ?? undefined;
     SelectedDevice$.next(deviceWithServices);
     focusDeviceInspector();
   }
   else {
     const selectedDevice = await showSelectDeviceInput();
     if (selectedDevice) {
-      const device = await getDeviceWithServices(balena, selectedDevice.uuid) ?? undefined;
+      const device = await getDeviceWithServiceDetails(balena, selectedDevice.uuid) ?? undefined;
       SelectedDevice$.next(device);
       focusDeviceInspector();
     }

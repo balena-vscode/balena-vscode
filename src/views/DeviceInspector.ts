@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import * as vscode from 'vscode';
-import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceIds, getDeviceWithServices, shortenUUID, useBalenaClient } from '@/balena';
+import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceIds, getDeviceWithServiceDetails, shortenUUID, useBalenaClient } from '@/balena';
 import { DeviceSummaryProvider, MetaProvider, ServicesProvider, VariablesProvider } from '@/providers';
 import { SelectedFleet$ } from './StatusBar';
 
@@ -25,7 +25,7 @@ export const registerView = (context: vscode.ExtensionContext) => {
                 }));
 
                 context.subscriptions.push(vscode.window.createTreeView(ViewId.Services, {
-                    treeDataProvider: new ServicesProvider(balena, getDeviceWithServices, device.uuid)
+                    treeDataProvider: new ServicesProvider(balena, getDeviceWithServiceDetails, device.uuid)
                 }));
 
                 context.subscriptions.push(vscode.window.createTreeView(ViewId.Variables, {

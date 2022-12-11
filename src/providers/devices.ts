@@ -1,12 +1,17 @@
 import * as vscode from 'vscode';
-import { BalenaSDK, Device, DeviceWithServiceDetails, Device as FleetDevice, getDeviceType, getDevices, shortenUUID } from '@/balena';
+import { BalenaSDK, Device, DeviceWithServiceDetails, Device as FleetDevice, getDevices, shortenUUID, DeviceType, Release, SupervisorRelease, getDevicePublicURL, DeviceTag } from '@/balena';
 import {
+  DateTimeIcon,
   DeviceHeartbeatOnlyIcon,
   DeviceOfflineIcon,
   DeviceOnlineIcon,
-  InfoIcon,
+  NetworkAddressIcon,
+  PrivateNetworkAddressIcon,
+  TagIcon,
+  TextIcon,
+  VersionsIcon,
 } from '@/icons';
-import { CopiableItem } from './sharedItems';
+import { CopiableItem, KeyValueItem } from './sharedItems';
 
 
 export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | vscode.TreeItem> {
@@ -41,9 +46,9 @@ export class DevicesProvider implements vscode.TreeDataProvider<DeviceItem | vsc
   }
 
   private async getDeviceDetails(device: DeviceItem): Promise<vscode.TreeItem[]> {
-    const osDetails = new CopiableItem(device.osDetails, "os version", InfoIcon);
-    const supervisorVersionDetails = new CopiableItem(device.supervisorDetails, "supervisor version", InfoIcon);
-    const lastOnlineDetails = new CopiableItem(device.lastOnlineDetails, "last online", InfoIcon);
+    const osDetails = new CopiableItem(device.osDetails, "os version", VersionsIcon);
+    const supervisorVersionDetails = new CopiableItem(device.supervisorDetails, "supervisor version", VersionsIcon);
+    const lastOnlineDetails = new CopiableItem(device.lastOnlineDetails, "last online", DateTimeIcon);
 
     return [
       osDetails,
@@ -71,24 +76,41 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-    if(!element) {
-      return Promise.resolve(this.buildSummaryItems());
-    } else {
-      return Promise.resolve([]);
+    switch(element?.label) {
+      case "tags":
+        return this.getDeviceTags();
+      default:
+        return this.getSummaryItems();
     }
   }
 
-  private async buildSummaryItems(): Promise<vscode.TreeItem[]> {
+  private async getSummaryItems(): Promise<vscode.TreeItem[]> {
+    const deviceType = ((this.device.is_of__device_type as unknown[])[0] as DeviceType).name;
+    const currentRelease = ((this.device.is_running__release as unknown[])[0] as any).commit;
+    
+    const publicUrl = this.device.is_web_accessible ? await getDevicePublicURL(this.balenaSdk, this.device.id) : "disabled";
+    const publicUrlIcon = this.device.is_web_accessible ? NetworkAddressIcon : PrivateNetworkAddressIcon;
+
     return [
-      ...await this.buildDeviceItems(),
+      new DeviceItem(`${this.device.device_name} [${deviceType}]`, vscode.TreeItemCollapsibleState.None, this.device),
+      new vscode.TreeItem("──"),
+      new CopiableItem(this.device.last_connectivity_event ?? "unknown", "last seen", DateTimeIcon),
+      new CopiableItem(shortenUUID(currentRelease) ?? "unknown", "release version", VersionsIcon),
+      new CopiableItem(this.device.supervisor_version ?? "", "supervisor version", VersionsIcon),
+      new CopiableItem(`${this.device.os_version} | ${this.device.os_variant}` ?? "uknown", "host os version", VersionsIcon),
+      new CopiableItem(this.device.is_accessible_by_support_until__date ?? "disabled", "support enabled until", DateTimeIcon),
+      new CopiableItem(publicUrl ?? "", "public device URL", publicUrlIcon),
+      new CopiableItem(this.device.public_address ?? "unknown", "public ip address", NetworkAddressIcon),
+      new CopiableItem(this.device.vpn_address ?? "unknown", "vpn ip address", PrivateNetworkAddressIcon),
+      new CopiableItem(this.device.ip_address ?? "", "local ip address", PrivateNetworkAddressIcon),
+      new CopiableItem(this.device.mac_address ?? "", "mac address", TextIcon),
+      new vscode.TreeItem("tags", vscode.TreeItemCollapsibleState.Expanded)
     ];
   }
-
-  private async buildDeviceItems(): Promise<DeviceItem[]> {
-    const deviceType = (await getDeviceType(this.balenaSdk, this.device.is_of__device_type))?.name;
-    return [
-      new DeviceItem(`${this.device.device_name} - ${deviceType}`, vscode.TreeItemCollapsibleState.None, this.device),
-    ];
+  
+  private async getDeviceTags(): Promise<vscode.TreeItem[]> {
+      const deviceTags = ((this.device.device_tag as unknown[]) as DeviceTag[]);
+      return Promise.resolve(deviceTags.map(d => new KeyValueItem(d.tag_key, d.value, TagIcon)))
   }
 }
 
