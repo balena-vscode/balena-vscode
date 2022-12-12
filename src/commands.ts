@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { getDeviceWithServiceDetails, isLoggedIn, useBalenaClient } from '@/balena';
 import { showLoginOptions } from '@/views/Authentication';
-import { SelectedFleet$, showSelectFleet } from '@/views/StatusBar';
+import { showSelectFleet } from '@/views/StatusBar';
 import { showInfoMsg, showWarnMsg } from '@/views/Notifications';
 import { ViewId as DeviceInspectorViewIds, SelectedDevice$, showSelectDeviceInput } from '@/views/DeviceInspector';
-import { ViewId as FleetExplorerViewIds } from '@/views/FleetExplorer';
+import { ViewId as FleetExplorerViewIds, SelectedFleet$ } from '@/views/FleetExplorer';
 import { DEVICE_LOG_URI_SCHEME, DeviceItem, DeviceStatus, ReleaseItem, ImageItem, BUILD_LOG_URI_SCHEME } from '@/providers';
 import { createBalenaSSHTerminal } from './views/Terminal';
 import { KeyValueItem } from './providers/sharedItems';
@@ -66,12 +66,12 @@ export const inspectDevice = async (device?: DeviceItem) => {
     focusDeviceInspector();
   }
   else {
-    const selectedDevice = await showSelectDeviceInput();
-    if (selectedDevice) {
-      const device = await getDeviceWithServiceDetails(balena, selectedDevice.uuid) ?? undefined;
-      SelectedDevice$.next(device);
-      focusDeviceInspector();
-    }
+    await showSelectDeviceInput();
+    SelectedDevice$.subscribe(async device => {
+      if (device) {
+        focusDeviceInspector();
+      }
+    })
   }
 };
 
@@ -83,9 +83,11 @@ export const openSSHConnectionInTerminal = async (device?: DeviceItem) => {
     deviceName = device.label;
     deviceUUID = device.uuid;
   } else {
-    const selectedDevice = await showSelectDeviceInput();
-    deviceName = selectedDevice?.device_name;
-    deviceUUID = selectedDevice?.uuid;
+    await showSelectDeviceInput();
+    SelectedDevice$.subscribe(device => {
+      deviceName = device?.device_name
+      deviceUUID = device?.uuid
+    }).unsubscribe();
   }
 
   if (device?.status === DeviceStatus.Offline || device?.status === DeviceStatus.OnlineHeartbeatOnly) {

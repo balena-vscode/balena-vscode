@@ -276,6 +276,11 @@
 					"default": 60,
 					"description": "How often Fleet Explorer data should be refreshed"
 				},
+				"balena-vscode.deviceRefreshIntervalInSeconds": {
+					"type": "number",
+					"default": 10,
+					"description": "How often Device Inspector data should be refreshed"
+				},
 				"balena-vscode.stripAnsiCharactersFromLogs": {
 					"type": "boolean",
 					"default": true,

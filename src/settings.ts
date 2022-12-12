@@ -8,6 +8,7 @@ export interface Settings {
   readonly sdkOptions?: SdkOptions,
   readonly defaultFleet?: string,
   readonly fleetRefreshIntervalInSeconds?: number,
+  readonly deviceRefreshIntervalInSeconds?: number,
   readonly stripAnsiCharactersFromLogs?: boolean
 }
 
@@ -15,7 +16,7 @@ export const getWorkspaceConfiguration = (): Settings => vscode.workspace.getCon
 
 vscode.workspace.onDidChangeConfiguration(changes => {
   if(changes.affectsConfiguration('balena-vscode')) {
-    showInfoMsg("Settings Updated");
+    showInfoMsg("Balena Settings Updated");
     Settings$.next(getWorkspaceConfiguration());
   }
 });

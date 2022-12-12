@@ -1,8 +1,9 @@
-import { BehaviorSubject } from 'rxjs';
 import * as vscode from 'vscode';
-import { Application, DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceIds, getDeviceWithServiceDetails, shortenUUID, useBalenaClient } from '@/balena';
+import { BehaviorSubject, delayWhen, interval, repeat, take, tap } from 'rxjs';
+import { DeviceWithServiceDetails, getDeviceById, getDeviceConfigVariables, getDeviceEnvVariables, getDeviceIds, getDeviceWithServiceDetails, shortenUUID, useBalenaClient } from '@/balena';
 import { DeviceSummaryProvider, MetaProvider, ServicesProvider, VariablesProvider } from '@/providers';
-import { SelectedFleet$ } from './StatusBar';
+import { SelectedFleet$ } from '@/views/FleetExplorer';
+import { Settings$ } from '@/settings';
 
 export enum ViewId {
     DeviceInspector = "deviceInspector",
@@ -17,30 +18,39 @@ export const SelectedDevice$ = new BehaviorSubject<DeviceWithServiceDetails | un
 export const registerView = (context: vscode.ExtensionContext) => {
     const balena = useBalenaClient();
 
-    SelectedFleet$.subscribe(() => {
-        SelectedDevice$.subscribe(device => {
-            if (device) {
-                context.subscriptions.push(vscode.window.createTreeView(ViewId.Summary, {
-                    treeDataProvider: new DeviceSummaryProvider(balena, device)
-                }));
+    SelectedDevice$.subscribe(device => {
+        if (device) {
+            context.subscriptions.push(vscode.window.createTreeView(ViewId.Summary, {
+                treeDataProvider: new DeviceSummaryProvider(balena, device)
+            }));
 
-                context.subscriptions.push(vscode.window.createTreeView(ViewId.Services, {
-                    treeDataProvider: new ServicesProvider(balena, getDeviceWithServiceDetails, device.uuid)
-                }));
+            context.subscriptions.push(vscode.window.createTreeView(ViewId.Services, {
+                treeDataProvider: new ServicesProvider(balena, getDeviceWithServiceDetails, device.uuid)
+            }));
 
-                context.subscriptions.push(vscode.window.createTreeView(ViewId.Variables, {
-                    canSelectMany: true,
-                    treeDataProvider: new VariablesProvider(balena, getDeviceConfigVariables, getDeviceEnvVariables, device.uuid)
-                }));
+            context.subscriptions.push(vscode.window.createTreeView(ViewId.Variables, {
+                canSelectMany: true,
+                treeDataProvider: new VariablesProvider(balena, getDeviceConfigVariables, getDeviceEnvVariables, device.uuid)
+            }));
 
-                context.subscriptions.push(vscode.window.createTreeView(ViewId.Meta, {
-                    canSelectMany: true,
-                    treeDataProvider: new MetaProvider(balena, getDeviceById, device.uuid)
-                }));
-            }
-        });
+            context.subscriptions.push(vscode.window.createTreeView(ViewId.Meta, {
+                canSelectMany: true,
+                treeDataProvider: new MetaProvider(balena, getDeviceById, device.uuid)
+            }));
+        }
     });
+    
+    refreshViewAtInterval();
 };
+
+const refreshViewAtInterval = () => {
+    Settings$.pipe(
+        tap(() => SelectedDevice$.pipe(take(1)).subscribe(d => SelectedDevice$.next(d))),
+        delayWhen(settings => interval(settings.deviceRefreshIntervalInSeconds! * 1000)),
+        take(1),
+        repeat()
+    ).subscribe();
+}
 
 export const showSelectDeviceInput = async () => {
     const balena = useBalenaClient();
@@ -58,20 +68,18 @@ export const showSelectDeviceInput = async () => {
         }
     }
 
-    let selectedFleet: Application | undefined;
-    SelectedFleet$.subscribe(fleet => {
-        selectedFleet = fleet;
+    SelectedFleet$.subscribe(async fleet => {
+        if (fleet) {
+            const devices = await getDeviceIds(balena, fleet.slug) ?? [];
+            const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid));
+            const selection = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
+                placeHolder: 'Select a device...',
+            });
+
+            if(selection) {
+                const selectedDevice = await getDeviceWithServiceDetails(balena, selection.uuid);
+                SelectedDevice$.next(selectedDevice ?? undefined);
+            }
+        }
     }).unsubscribe();
-
-    if (selectedFleet) {
-        const devices = await getDeviceIds(balena, selectedFleet.slug) ?? [];
-        const deviceSelectionList = devices.map(d => new DeviceItem(d.device_name, d.uuid));
-        const selectedDevice = await vscode.window.showQuickPick<DeviceItem>(deviceSelectionList, {
-            placeHolder: 'Select a device...',
-        });
-
-        return selectedDevice;
-    } else {
-        return undefined;
-    }
 };

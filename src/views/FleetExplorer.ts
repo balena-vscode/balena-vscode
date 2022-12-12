@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { getFleetById, getFleetConfigVariables, getFleetEnvVariables, useBalenaClient } from '@/balena';
+import { BehaviorSubject, delayWhen, interval, repeat, take, tap } from 'rxjs';
+import { Fleet, getFleetById, getFleetConfigVariables, getFleetEnvVariables, getFleets, useBalenaClient } from '@/balena';
 import { DevicesProvider, MetaProvider, ReleasesProvider, VariablesProvider } from '@/providers';
-import { SelectedFleet$ } from './StatusBar';
+import { Settings$ } from '@/settings';
 
 export enum ViewId {
     FleetExplorer = "fleetExplorer",
@@ -11,8 +12,11 @@ export enum ViewId {
     Meta = "fleetMeta",
 }
 
+export const SelectedFleet$ = new BehaviorSubject<Fleet | undefined>(undefined);
+
 export const registerView = (context: vscode.ExtensionContext) => {
   const balena = useBalenaClient();
+
   SelectedFleet$.subscribe(fleet => {
     if (fleet) {
       context.subscriptions.push(vscode.window.createTreeView(ViewId.Devices, {
@@ -37,4 +41,23 @@ export const registerView = (context: vscode.ExtensionContext) => {
       }));
     }
   });
+
+  refreshViewAtInterval();
 };
+
+const refreshViewAtInterval = () => {
+  Settings$.pipe(
+    tap(async settings => {
+      const balena = useBalenaClient();
+      if (settings.defaultFleet) {
+        SelectedFleet$.next(await getFleetById(balena, settings.defaultFleet) ?? undefined);
+      } else {
+        SelectedFleet$.next((await getFleets(balena) ?? [])[0]);
+      }
+    }),
+    delayWhen(settings => interval(settings.fleetRefreshIntervalInSeconds! * 1000)),
+    take(1),
+    repeat()
+  ).subscribe();
+}
+
