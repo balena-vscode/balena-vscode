@@ -271,10 +271,15 @@
 					"default": null,
 					"description": "Default fleet to use on load"
 				},
-				"balena-vscode.fleetRefreshInterval": {
+				"balena-vscode.fleetRefreshIntervalInSeconds": {
 					"type": "number",
-					"default": 60000,
-					"description": "How often Fleet data should be refreshed in seconds"
+					"default": 60,
+					"description": "How often Fleet Explorer data should be refreshed"
+				},
+				"balena-vscode.stripAnsiCharactersFromLogs": {
+					"type": "boolean",
+					"default": true,
+					"description": "When enabled, the extension will strip logs of ANSI to display nicely in editor views. Only affects new/incoming logs."
 				}
 			}
 		}

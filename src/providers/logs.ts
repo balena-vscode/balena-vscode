@@ -1,7 +1,9 @@
 import vscode from 'vscode';
 import { BalenaSDK, LogMessage, LogsSubscription } from '@/balena';
+import { Settings$ } from '@/settings';
+import stripAnsi from 'strip-ansi';
 
-type Subscriptions = {
+interface Subscriptions {
     [uri: string]: {
         handle: LogsSubscription
         content: string
@@ -24,6 +26,7 @@ export class LogsProvider implements vscode.TextDocumentContentProvider {
             const subscription = this.subscriptions[doc.uri.toString()];
             if(subscription) {
                 subscription.handle.unsubscribe();
+                subscription.content = '';
             }
         });
     }
@@ -38,9 +41,11 @@ export class LogsProvider implements vscode.TextDocumentContentProvider {
                     this.subscriptions[uriString] = {
                         content: '',
                         handle: logs.on('line', (line: LogMessage) => {
-                            const oldContent = this.subscriptions[uriString]?.content ?? '';
-                            this.subscriptions[uriString].content = oldContent.concat(line.message);
-                            this.onDidChangeEmitter.fire(uri as vscode.Uri);
+                            Settings$.subscribe(settings => {
+                                const oldContent = this.subscriptions[uriString]?.content ?? '';
+                                this.subscriptions[uriString].content = oldContent.concat(settings.stripAnsiCharactersFromLogs ? stripAnsi(line.message) : line.message);
+                                this.onDidChangeEmitter.fire(uri as vscode.Uri);
+                            }).unsubscribe();
                         })
                     };
                 });

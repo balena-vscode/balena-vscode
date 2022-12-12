@@ -4,10 +4,11 @@ import { SdkOptions } from '@/balena';
 import { showInfoMsg } from '@/views/Notifications';
 
 
-interface Settings {
+export interface Settings {
   readonly sdkOptions?: SdkOptions,
   readonly defaultFleet?: string,
-  readonly fleetRefreshInterval?: number
+  readonly fleetRefreshIntervalInSeconds?: number,
+  readonly stripAnsiCharactersFromLogs?: boolean
 }
 
 export const getWorkspaceConfiguration = (): Settings => vscode.workspace.getConfiguration('balena-vscode') as Settings;

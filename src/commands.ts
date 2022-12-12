@@ -113,7 +113,7 @@ const copyToClipboard = async (value?: string) => {
 export const openLogsInNewTab = async (device: DeviceItem) => {
   const uri = vscode.Uri.parse("".concat(
     `${DEVICE_LOG_URI_SCHEME}:`,
-    `${device.name}`,
+    `${device.name}.log`,
     `#${device.uuid}`
   ));
   await vscode.window.showTextDocument(uri, { preview: true });
