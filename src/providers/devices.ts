@@ -86,8 +86,8 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private async getSummaryItems(): Promise<vscode.TreeItem[]> {
-    const deviceType = ((this.device.is_of__device_type as unknown[])[0] as DeviceType).name;
-    const currentRelease = ((this.device.is_running__release as unknown[])[0] as Release).commit;
+    const deviceType = ((this.device.is_of__device_type as unknown[])[0] as DeviceType)?.name;
+    const currentRelease = ((this.device.is_running__release as unknown[])[0] as Release)?.commit;
     const targetRelease = ((this.device.should_be_running__release as unknown[])[0] as Release)?.commit;
     const targetSupervisor = ((this.device.should_be_managed_by__supervisor_release as unknown[])[0] as SupervisorRelease)?.supervisor_version;
     
@@ -95,20 +95,20 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
     const publicUrlIcon = this.device.is_web_accessible ? NetworkAddressIcon : PrivateNetworkAddressIcon;
 
     return [
-      new DeviceItem(`${this.device.device_name} [${deviceType}]`, vscode.TreeItemCollapsibleState.None, this.device),
+      new DeviceItem(`${this.device.device_name} [${deviceType ?? "unknown"}]`, vscode.TreeItemCollapsibleState.None, this.device),
       new vscode.TreeItem("──"),
       new CopiableItem(this.device.last_connectivity_event ?? "unknown", "last seen", DateTimeIcon),
-      new CopiableItem(shortenUUID(currentRelease) ?? "unknown", "current release", VersionsIcon),
-      new CopiableItem(shortenUUID(targetRelease) ?? "unknown", "target release", TargetIcon),
-      new CopiableItem(this.device.supervisor_version ?? "", "current supervisor", VersionsIcon),
-      new CopiableItem(targetSupervisor ?? "", "target supervisor", TargetIcon),
+      new CopiableItem( currentRelease ? shortenUUID(currentRelease) : "unknown", "current release", VersionsIcon),
+      new CopiableItem(targetRelease ? shortenUUID(targetRelease) : "unknown", "target release", TargetIcon),
+      new CopiableItem(this.device.supervisor_version ?? "unknown", "current supervisor", VersionsIcon),
+      new CopiableItem(targetSupervisor ?? "unknown", "target supervisor", TargetIcon),
       new CopiableItem(`${this.device.os_version} | ${this.device.os_variant}` ?? "uknown", "current host os", VersionsIcon),
       new CopiableItem(this.device.is_accessible_by_support_until__date ?? "disabled", "support enabled until", DateTimeIcon),
-      new CopiableItem(publicUrl ?? "", "public device URL", publicUrlIcon),
+      new CopiableItem(publicUrl ?? "unknown", "public device URL", publicUrlIcon),
       new CopiableItem(this.device.public_address ?? "unknown", "public ip address", NetworkAddressIcon),
       new CopiableItem(this.device.vpn_address ?? "unknown", "vpn ip address", PrivateNetworkAddressIcon),
-      new CopiableItem(this.device.ip_address ?? "", "local ip address", PrivateNetworkAddressIcon),
-      new CopiableItem(this.device.mac_address ?? "", "mac address", TextIcon),
+      new CopiableItem(this.device.ip_address ?? "unknown", "local ip address", PrivateNetworkAddressIcon),
+      new CopiableItem(this.device.mac_address ?? "unknown", "mac address", TextIcon),
       new vscode.TreeItem("tags", vscode.TreeItemCollapsibleState.Expanded)
     ];
   }
