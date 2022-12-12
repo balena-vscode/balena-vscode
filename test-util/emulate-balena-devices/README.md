@@ -15,6 +15,6 @@ QEMU should ensure the widest compatibility for developer workstations at the ex
 
 2. Extract and copy each device image downloaded into the `./imgs/` directory with unique names (e.g. balena-cloud-*-device-a.img)
 
-3. Run the emulators with `npm run simulate-balena-devices-qemu`. It will start an instance for every image found in the `./imgs/` directory
+3. Run the emulators with `npm run emulate-balena-devices-qemu`. It will start an instance for every image found in the `./imgs/` directory
 
 4. Wait for devices to appear in the Balena dashboard!

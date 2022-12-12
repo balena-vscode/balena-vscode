@@ -31,7 +31,7 @@ npx vsce package --no-dependenies
 ### Testing
 #### Creating a test fleet and devices
 You can create a simple fleet on balena.io for free to use for testing. Simply add devices, download their configurations per Balena's documenation, and launch with QEMU. 
-Have a look at the [README in `test-utils/simulate-balena-devices` for more details](./test-util/simulate-balena-devices/README.md).
+Have a look at the [README in `test-utils/emulate-balena-devices` for more details](./test-util/emulate-balena-devices/README.md).
 
 ## Conduct
 Since this is an early project, there are not many formalities. Feel free to open issues for bugs, feature requests, PRs, or anything else! 
