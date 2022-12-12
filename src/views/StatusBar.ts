@@ -17,7 +17,7 @@ export const showSelectFleet = async () => {
   }));
 
   if (selectedFleetId) {
-    const selectedFleet = fleets.find((f, i) => fleets[i].slug === f.slug);
+    const selectedFleet = fleets.find(fleet => fleet.slug === selectedFleetId);
     SelectedFleet$.next(selectedFleet);
   }
 
