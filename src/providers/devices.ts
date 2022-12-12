@@ -8,6 +8,7 @@ import {
   NetworkAddressIcon,
   PrivateNetworkAddressIcon,
   TagIcon,
+  TargetIcon,
   TextIcon,
   VersionsIcon,
 } from '@/icons';
@@ -86,7 +87,9 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private async getSummaryItems(): Promise<vscode.TreeItem[]> {
     const deviceType = ((this.device.is_of__device_type as unknown[])[0] as DeviceType).name;
-    const currentRelease = ((this.device.is_running__release as unknown[])[0] as any).commit;
+    const currentRelease = ((this.device.is_running__release as unknown[])[0] as Release).commit;
+    const targetRelease = ((this.device.should_be_running__release as unknown[])[0] as Release)?.commit;
+    const targetSupervisor = ((this.device.should_be_managed_by__supervisor_release as unknown[])[0] as SupervisorRelease)?.supervisor_version;
     
     const publicUrl = this.device.is_web_accessible ? await getDevicePublicURL(this.balenaSdk, this.device.id) : "disabled";
     const publicUrlIcon = this.device.is_web_accessible ? NetworkAddressIcon : PrivateNetworkAddressIcon;
@@ -95,9 +98,11 @@ export class DeviceSummaryProvider implements vscode.TreeDataProvider<vscode.Tre
       new DeviceItem(`${this.device.device_name} [${deviceType}]`, vscode.TreeItemCollapsibleState.None, this.device),
       new vscode.TreeItem("──"),
       new CopiableItem(this.device.last_connectivity_event ?? "unknown", "last seen", DateTimeIcon),
-      new CopiableItem(shortenUUID(currentRelease) ?? "unknown", "release version", VersionsIcon),
-      new CopiableItem(this.device.supervisor_version ?? "", "supervisor version", VersionsIcon),
-      new CopiableItem(`${this.device.os_version} | ${this.device.os_variant}` ?? "uknown", "host os version", VersionsIcon),
+      new CopiableItem(shortenUUID(currentRelease) ?? "unknown", "current release", VersionsIcon),
+      new CopiableItem(shortenUUID(targetRelease) ?? "unknown", "target release", TargetIcon),
+      new CopiableItem(this.device.supervisor_version ?? "", "current supervisor", VersionsIcon),
+      new CopiableItem(targetSupervisor ?? "", "target supervisor", TargetIcon),
+      new CopiableItem(`${this.device.os_version} | ${this.device.os_variant}` ?? "uknown", "current host os", VersionsIcon),
       new CopiableItem(this.device.is_accessible_by_support_until__date ?? "disabled", "support enabled until", DateTimeIcon),
       new CopiableItem(publicUrl ?? "", "public device URL", publicUrlIcon),
       new CopiableItem(this.device.public_address ?? "unknown", "public ip address", NetworkAddressIcon),
