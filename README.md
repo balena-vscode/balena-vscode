@@ -1,6 +1,4 @@
 # Balena VS Code
-Unofficial extension for use with Balena Cloud
-
 | | |
 |-------------|--------|
 | [OpenVSX](https://open-vsx.org/extension/kalebpace/balena-vscode)     | ![Open VSX Version](https://img.shields.io/open-vsx/v/kalebpace/balena-vscode?color=white) ![Open VSX Downloads](https://img.shields.io/open-vsx/dt/kalebpace/balena-vscode?color=white&logo=OpenVSX) |
