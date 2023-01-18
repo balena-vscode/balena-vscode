@@ -12,7 +12,7 @@
 		"Other"
 	],
 	"galleryBanner": {
-		"color": "FFC100"
+		"color": "000000"
 	},
 	"main": "./dist/node/extension.js",
 	"browser": "./dist/web/extension.js",

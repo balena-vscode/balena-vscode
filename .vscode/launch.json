@@ -29,20 +29,5 @@
 			],
 			"preLaunchTask": "${defaultBuildTask}"
 		}
-		// {
-		// 	"name": "Native: Extension Tests",
-		// 	"type": "extensionHost",
-		// 	"request": "launch",
-		// 	"args": [
-		// 		"--disable-extensions",
-		// 		"--extensionDevelopmentPath=${workspaceFolder}",
-		// 		"--extensionTestsPath=${workspaceFolder}/out/src/test/suite/index"
-		// 	],
-		// 	"outFiles": [
-		// 		"${workspaceFolder}/out/**/*.js",
-		// 		"${workspaceFolder}/dist/node/**/*.js"
-		// 	],
-		// 	"preLaunchTask": "npm: compile-tests"
-		// },
 	]
 }
