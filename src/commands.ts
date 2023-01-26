@@ -27,23 +27,6 @@ export enum CommandId {
   RefreshFleet = 'balena-vscode.refreshFleet'
 }
 
-export const registerCommands = (context: vscode.ExtensionContext) => {
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.LoginToBalenaCloud, loginToBalenaCloud));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.SelectActiveFleet, selectActiveFleet));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.InspectDevice, inspectDevice));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenSSHConnectionInTerminal, openSSHConnectionInTerminal));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemToClipboard, copyItemToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemKeyToClipboard, copyItemKeyToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemValueToClipboard, copyItemValueToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyNameToClipboard, copyNameToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyUUIDToClipboard, copyUUIDToClipboard));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenLogsInNewTab, openLogsInNewTab));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenBuildLogsInNewTab, openBuildLogsInNewTab));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenContainerfileInNewTab, openContainerfileInNewTab));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenComposefileInNewTab, openComposefileInNewTab));
-  context.subscriptions.push(vscode.commands.registerCommand(CommandId.RefreshFleet, refreshFleet));
-};
-
 export const loginToBalenaCloud = async () => {
   const balena = useBalenaClient();
   if (await isLoggedIn(balena)) {
@@ -161,4 +144,21 @@ export const refreshFleet = () => {
   let fleet;
   SelectedFleet$.subscribe(f => fleet = f).unsubscribe();
   SelectedFleet$.next(fleet);
+};
+
+export const registerCommands = (context: vscode.ExtensionContext) => {
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.LoginToBalenaCloud, loginToBalenaCloud));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.SelectActiveFleet, selectActiveFleet));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.InspectDevice, inspectDevice));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenSSHConnectionInTerminal, openSSHConnectionInTerminal));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemToClipboard, copyItemToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemKeyToClipboard, copyItemKeyToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyItemValueToClipboard, copyItemValueToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyNameToClipboard, copyNameToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.CopyUUIDToClipboard, copyUUIDToClipboard));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenLogsInNewTab, openLogsInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenBuildLogsInNewTab, openBuildLogsInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenContainerfileInNewTab, openContainerfileInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.OpenComposefileInNewTab, openComposefileInNewTab));
+  context.subscriptions.push(vscode.commands.registerCommand(CommandId.RefreshFleet, refreshFleet));
 };

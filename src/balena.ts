@@ -2,6 +2,7 @@ import { BalenaSDK, DeviceType, NavigationResource, getSdk } from 'balena-sdk';
 import * as BalenaErrors from 'balena-errors';
 import { showBalenaSetupWarning } from '@/views/Notifications';
 import { getWorkspaceConfiguration, Settings$ } from '@/settings'
+import { useStore } from './store';
 
 export * from 'balena-sdk';
 export {
@@ -10,7 +11,7 @@ export {
 } from 'balena-sdk';
 
 let balenaSdk: BalenaSDK;
-Settings$.subscribe(() => balenaSdk = getSdk(getWorkspaceConfiguration().sdkOptions));
+Settings$.subscribe(() => { balenaSdk = getSdk(getWorkspaceConfiguration().sdkOptions); });
 
 /**
  * Returns an existing Balena SDK Client, or creates a new instance, configured with any user workspace options
@@ -52,6 +53,18 @@ export const loginWithEmailPass = async (balenaSdk: BalenaSDK, email: string, pa
 };
 
 /**
+ * Returns true if login is successful
+ *
+ * @param balenaSdk
+ * @param token
+ * @returns boolean
+ */
+export const verify2FAToken = async (balenaSdk: BalenaSDK, token: string) => {
+  await balenaSdk.auth.twoFactor.challenge(token);
+  return await balenaSdk.auth.isLoggedIn();
+}
+
+/**
  * Utility funciton which shortens a UUID to the same format displayed in Balena Web Dashboard
  * 
  * @param uuid 
@@ -60,6 +73,9 @@ export const loginWithEmailPass = async (balenaSdk: BalenaSDK, email: string, pa
 export const shortenUUID = (uuid: string) => uuid.slice(0, 7);
 
 export const isLoggedIn = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.isLoggedIn().catch(sdkErrHandler);
+export const is2FAEnabled = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.twoFactor.isEnabled().catch(sdkErrHandler);
+export const getToken = async (balenaSdk: BalenaSDK) => await balenaSdk.auth.getToken().catch(sdkErrHandler);
+
 
 export const getDevices = async (balenaSdk: BalenaSDK, fleetId: string) => await balenaSdk.models.device.getAllByApplication(fleetId).catch(sdkErrHandler);
 export const getDeviceById = async (balenaSdk: BalenaSDK, deviceId: string | number) => await balenaSdk.models.device.get(deviceId).catch(sdkErrHandler);
@@ -82,7 +98,13 @@ export const getFleetReleaseTags = async (balenaSdk: BalenaSDK, releaseId: strin
 const sdkErrHandler = async (e: BalenaErrors.BalenaError) => {
   if (e.code === BalenaErrors.BalenaRequestError.prototype.code) {
     if (e.message.includes("Invalid binding")) {
-      showBalenaSetupWarning();
+      const balena = useBalenaClient();
+      const token = await useStore().getBalenaApiKey();
+      if(token) {
+          await loginWithToken(balena, token);
+      } else {
+        showBalenaSetupWarning();
+      }
     }
   } else {
     throw e;

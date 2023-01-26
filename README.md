@@ -19,6 +19,7 @@
     - [x] List Releases, build statuses, tags, and open relevant container files (e.g. Dockerfile, docker-compose.yml)
     - [x] List (read-only) Variables, for both Fleet configuration and global environments
     - [x] List miscellaneous (meta) properties for the currently selected Fleet
+    - [ ] Open in browser dashboard
     - [ ] Edit Variables List
     - [ ] Toggle Local-mode
     - [ ] Power commands (Reboot, Power-off, etc)
